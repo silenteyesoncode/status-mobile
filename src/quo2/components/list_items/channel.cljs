@@ -16,7 +16,8 @@
   [{:keys [locked? mentions-count unread-messages?
            muted? is-active-channel? emoji channel-color]
     :or   {channel-color colors/primary-50}
-    :as   props}]
+    :as   props}
+   community-muted?]
   (let [standard-props (apply dissoc props custom-props)
         name-text      (:name props)]
     [rn/touchable-opacity standard-props
@@ -54,19 +55,19 @@
        {:style {:height          20
                 :justify-content :center}}
        (when (and (not locked?)
-                  muted?)
+                (or muted? community-muted?))
          [quo2.icons/icon :i/muted
           {:size     20
            :no-color true}])
        (when (and (not locked?)
-                  (not muted?)
+                (or (not muted?) (not community-muted?))
                   (pos? (int mentions-count)))
          [rn/view
           {:style {:margin-right 2
                    :margin-top   2}}
           [quo2.counter/counter {:override-bg-color channel-color} mentions-count]])
        (when (and (not locked?)
-                  (not muted?)
+                (or (not muted?) (not community-muted?))
                   (not (pos? (int mentions-count)))
                   unread-messages?)
          [unread-grey-dot :unviewed-messages-public])]]]))

@@ -48,7 +48,7 @@
 
 (defn channel-list-component
   [{:keys [on-category-layout community-id on-first-channel-height-changed]}
-   channels-list]
+   channels-list community-muted?]
   [rn/view
    {:on-layout #(on-first-channel-height-changed
                  (+ (if platform/ios? 0 38)
@@ -89,7 +89,8 @@
                       (rf/dispatch [:show-bottom-sheet
                                     {:content       (fn [] [actions/chat-actions chat false])
                                      :selected-item (fn []
-                                                      [quo/channel-list-item chat])}])))]])])])])
+                                                      [quo/channel-list-item chat])}])))]])])])
+                                                      community-muted?])
 
 (defn request-to-join-text
   [is-open?]
@@ -249,11 +250,12 @@
    description])
 
 (defn community-content
-  [{:keys [name description joined tags id]
+  [{:keys [name description joined tags id muted]
     :as   community}
    pending?
    {:keys [on-category-layout on-first-channel-height-changed]}]
-  (let [chats-by-category (rf/sub [:communities/categorized-channels id])]
+  (let [chats-by-category (rf/sub [:communities/categorized-channels id])
+        community-muted?  muted]
     [:<>
      [rn/view {:style style/community-content-container}
       [status-tag pending? joined]
@@ -268,7 +270,8 @@
       {:on-category-layout              on-category-layout
        :community-id                    id
        :on-first-channel-height-changed on-first-channel-height-changed}
-      (add-on-press-handler-to-categorized-chats id chats-by-category)]]))
+      (add-on-press-handler-to-categorized-chats id chats-by-category)
+      community-muted?]]))
 
 (defn sticky-category-header
   [_]
