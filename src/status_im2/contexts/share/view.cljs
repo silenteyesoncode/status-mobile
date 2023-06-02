@@ -15,15 +15,23 @@
 (defn header
   []
   [:<>
-   [quo/button
-    {:icon                true
-     :type                :blur-bg
-     :size                32
-     :accessibility-label :close-shell-share-tab
-     :override-theme      :dark
-     :style               style/header-button
-     :on-press            #(rf/dispatch [:navigate-back])}
-    :i/close]
+   [rn/view {:style style/header-row}
+    [quo/button
+     {:icon                true
+      :type                :blur-bg
+      :size                32
+      :accessibility-label :close-shell-share-tab
+      :override-theme      :dark
+      :on-press            #(rf/dispatch [:navigate-back])}
+     :i/close]
+    [quo/button
+     {:icon                true
+      :type                :blur-bg
+      :size                32
+      :accessibility-label :shell-scan-button
+      :override-theme      :dark
+      :on-press            #(rf/dispatch [:navigate-back])}
+     :i/scan]]
    [quo/text
     {:size   :heading-1
      :weight :semi-bold
@@ -34,12 +42,12 @@
   "The goal here is to generate a string that begins with
    join.status.im/u/ joined with the 1st 5 characters
    of the compressed public key followed by an ellipsis followed by
-   the last 12 characters of the compressed public key"
+   the last 10 characters of the compressed public key"
   [base-url public-pk]
   (let [first-part-of-public-pk (subs public-pk 0 5)
         ellipsis                "..."
         public-pk-size          (count public-pk)
-        last-part-of-public-pk  (subs public-pk (- public-pk-size 12) (- public-pk-size 1))
+        last-part-of-public-pk  (subs public-pk (- public-pk-size 10) (- public-pk-size 1))
         abbreviated-url         (str base-url first-part-of-public-pk ellipsis last-part-of-public-pk)]
     abbreviated-url))
 
@@ -164,5 +172,8 @@
       [rn/view
        {:flex        1
         :padding-top (navigation/status-bar-height)}
-       [blur/view style/blur]
+       [blur/view
+        {:style            style/blur
+         :background-color colors/neutral-80-opa-80-blur
+         :blur-amount      20}]
        [tab-content window-width]])))
