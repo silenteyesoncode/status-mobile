@@ -20,7 +20,7 @@
         shared-element-id (rf/sub [:shared-element-id])]
     [:<>
      (when (= index 0)
-       [rn/view {:style {:margin-bottom 10}} [text/text-content message]])
+       [rn/view [text/text-content message]])
      [rn/touchable-opacity
       {:active-opacity 1
        :style          {:margin-top (when (pos? index) 10)}
