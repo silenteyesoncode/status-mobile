@@ -35,18 +35,17 @@
     [status-im2.contexts.onboarding.syncing.progress.view :as syncing-devices]
     [status-im2.contexts.chat.new-chat.view :as new-chat]
     [react-native.core :as rn]
-    [quo.platform :as platform]
     [status-im2.constants :as constants]))
 
 (def sign-in-modal-animations
-  {:showModal    {:translationY {:from     (- (:height (rn/get-window)) (if platform/ios? 318 296))
+  {:showModal    {:translationY {:from     (:height (rn/get-window))
                                  :to       0
                                  :duration constants/onboarding-modal-animation-duration}
                   :alpha        {:from     1
                                  :to       1
                                  :duration 0}}
    :dismissModal {:translationY {:from     0
-                                 :to       (- (:height (rn/get-window)) (if platform/ios? 318 296))
+                                 :to       (:height (rn/get-window))
                                  :duration constants/onboarding-modal-animation-duration}
                   :alpha        {:from     1
                                  :to       0

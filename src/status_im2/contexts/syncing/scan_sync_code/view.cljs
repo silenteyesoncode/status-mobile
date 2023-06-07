@@ -307,23 +307,27 @@
             content-opacity (reanimated/use-shared-value 0)
             content-translate-y (reanimated/interpolate subtitle-opacity [0 1] [85 0])
             bottom-view-translate-y (reanimated/use-shared-value (+ 42.2 (:bottom insets)))
-            reset-animations-fn (fn []
-                                  (reset! should-render-camera? false)
-                                  (reanimated/animate-shared-value-with-timing
-                                   content-opacity
-                                   0
-                                   (/ constants/onboarding-modal-animation-duration 8)
-                                   :easing4)
-                                  (reanimated/animate-shared-value-with-timing
-                                   subtitle-opacity
-                                   0
-                                   (- constants/onboarding-modal-animation-duration
-                                      constants/onboarding-modal-animation-delay)
-                                   :easing4)
-                                  (reanimated/animate-shared-value-with-timing title-opacity
-                                                                               0
-                                                                               0
-                                                                               :easing4))]
+            reset-animations-fn
+            (fn []
+              (reset! should-render-camera? false)
+              (js/setTimeout
+               (fn []
+                 (reanimated/animate-shared-value-with-timing
+                  content-opacity
+                  0
+                  (/ constants/onboarding-modal-animation-duration 8)
+                  :easing4)
+                 (reanimated/animate-shared-value-with-timing
+                  subtitle-opacity
+                  0
+                  (- constants/onboarding-modal-animation-duration
+                     constants/onboarding-modal-animation-delay)
+                  :easing4)
+                 (reanimated/animate-shared-value-with-timing title-opacity
+                                                              0
+                                                              0
+                                                              :easing4))
+               (if (and @should-render-camera? show-camera? (:x qr-view-finder)) 100 0)))]
         (reanimated/animate-shared-value-with-delay subtitle-opacity
                                                     1 constants/onboarding-modal-animation-duration
                                                     :easing4 (/

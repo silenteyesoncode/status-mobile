@@ -6,7 +6,7 @@
             [react-native.blur :as blur]
             [quo2.components.drawers.drawer-buttons.style :as style]
             [react-native.reanimated :as reanimated]
-            [quo.platform :as platform]
+            [react-native.platform :as platform]
             [react-native.safe-area :as safe-area]))
 
 (def default-height 216)
@@ -53,7 +53,8 @@
        children)]))
 
 (defn- f-card
-  [{:keys [on-press default-on-press style heading gap accessibility-label top? top-children-opacity animated-heading]}
+  [{:keys [on-press default-on-press style heading gap accessibility-label top? top-children-opacity
+           animated-heading]}
    children]
   [rn/touchable-highlight
    {:accessibility-label accessibility-label
