@@ -53,11 +53,15 @@
        children)]))
 
 (defn- f-card
-  [{:keys [on-press style heading gap accessibility-label top? top-children-opacity animated-heading]}
+  [{:keys [on-press default-on-press style heading gap accessibility-label top? top-children-opacity animated-heading]}
    children]
   [rn/touchable-highlight
    {:accessibility-label accessibility-label
-    :on-press            on-press
+    :on-press            (fn []
+                           (when on-press
+                             (on-press))
+                           (when default-on-press
+                             (default-on-press)))
     :border-radius       20
     :style               style
     :underlay-color      (:background-color style)}
@@ -155,7 +159,7 @@
                                 :easing4))]
     (rn/use-effect (fn []
                      (when on-init
-                       (on-init start-top-animation reset-top-animation))))
+                       (on-init reset-top-animation))))
     [reanimated/view {:style (style/outer-container top border-radius container-style)}
      [blur/view
       {:blur-type   :dark
@@ -171,7 +175,8 @@
          (merge {:gap                  4
                  :top?                 true
                  :style                {:flex 1}
-                 :top-children-opacity top-children-opacity}
+                 :top-children-opacity top-children-opacity
+                 :default-on-press     start-top-animation}
                 top-card)
          child-1]]
        [reanimated/view
