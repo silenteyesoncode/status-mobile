@@ -9,6 +9,8 @@
             [quo.platform :as platform]
             [react-native.safe-area :as safe-area]))
 
+(def default-height 216)
+
 (defn render-bottom
   [children]
   [rn/view {:style style/bottom-container}
@@ -50,10 +52,6 @@
         children]
        children)]))
 
-(defn render-children-top
-  [children top-children-opacity]
-  [:f> f-render-children-top children top-children-opacity])
-
 (defn- f-card
   [{:keys [on-press style heading gap accessibility-label top? top-children-opacity animated-heading]}
    children]
@@ -81,7 +79,7 @@
            :weight :semi-bold}
           animated-heading]]))
     (if top?
-      [render-children-top children top-children-opacity]
+      [:f> f-render-children-top children top-children-opacity]
       [render-children-bottom children])]])
 
 (defn card
@@ -104,10 +102,10 @@
   [{:keys [container-style top-card bottom-card on-init animations-duration animations-delay]}
    child-1
    child-2]
-  (let [top                  (reanimated/use-shared-value
-                              (- (:height (if platform/ios? (rn/get-window) (rn/get-screen)))
-                                 (when platform/android? (safe-area/get-top))
-                                 216))
+  (let [initial-top-value    (- (:height (if platform/ios? (rn/get-window) (rn/get-screen)))
+                                (when platform/android? (safe-area/get-top))
+                                default-height)
+        top                  (reanimated/use-shared-value initial-top-value)
         top-padding          (reanimated/use-shared-value 12)
         border-radius        (reanimated/use-shared-value 20)
         bottom-view-top      (reanimated/use-shared-value 80)
@@ -142,9 +140,7 @@
                                                                            50)
                                (reanimated/animate-shared-value-with-timing
                                 top
-                                (- (:height (if platform/ios? (rn/get-window) (rn/get-screen)))
-                                   (when platform/android? (safe-area/get-top))
-                                   216)
+                                initial-top-value
                                 animations-duration
                                 :easing4)
                                (reanimated/animate-shared-value-with-timing
@@ -164,17 +160,9 @@
      [blur/view
       {:blur-type   :dark
        :blur-amount 10
-       :style       {:flex                    1
-                     :border-top-left-radius  20
-                     :border-top-right-radius 20}}
+       :style       style/blur-view-style}
       [rn/view
-       {:style {:flex             1
-                :background-color :transparent
-                :position         :absolute
-                :top              0
-                :left             0
-                :right            0
-                :bottom           0}}
+       {:style style/blur-content-style}
        [reanimated/view
         {:style (reanimated/apply-animations-to-style
                  {:padding-top top-padding}
@@ -184,7 +172,8 @@
                  :top?                 true
                  :style                {:flex 1}
                  :top-children-opacity top-children-opacity}
-                top-card) child-1]]
+                top-card)
+         child-1]]
        [reanimated/view
         {:style (reanimated/apply-animations-to-style
                  {:top bottom-view-top}
@@ -192,7 +181,8 @@
         [card
          (merge {:style {:flex 1}
                  :gap   10}
-                bottom-card) child-2]]]]]))
+                bottom-card)
+         child-2]]]]]))
 
 (defn view
   [props child-1 child-2]

@@ -8,13 +8,13 @@
    {:top                     top
     :border-top-left-radius  border-radius
     :border-top-right-radius border-radius}
-   (merge
+   (assoc
     container-style
-    {:position :absolute
-     :bottom   0
-     :left     0
-     :right    0
-     :overflow :hidden})))
+    :position :absolute
+    :bottom   0
+    :left     0
+    :right    0
+    :overflow :hidden)))
 
 (def top-card
   {:flex                    1
@@ -48,6 +48,20 @@
    :justify-content :center
    :align-items     :center
    :border-color    colors/white-opa-5})
+
+(def blur-view-style
+  {:flex                    1
+   :border-top-left-radius  20
+   :border-top-right-radius 20})
+
+(def blur-content-style
+  {:flex             1
+   :background-color :transparent
+   :position         :absolute
+   :top              0
+   :left             0
+   :right            0
+   :bottom           0})
 
 (def bottom-text
   {:flex  1
