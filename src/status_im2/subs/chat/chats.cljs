@@ -6,6 +6,7 @@
             [status-im.group-chats.db :as group-chats.db]
             [status-im.multiaccounts.core :as multiaccounts]
             [status-im2.constants :as constants]
+            [status-im2.contexts.chat.composer.constants :as composer.constants]
             [status-im2.contexts.chat.events :as chat.events]))
 
 (re-frame/reg-sub
@@ -140,15 +141,23 @@
  (fn [[chat-id inputs]]
    (get inputs chat-id)))
 
-;; TODO(alwx):
 (re-frame/reg-sub
   :chats/composer-height
   :<- [:chats/current-chat-input]
   :<- [:chats/link-previews-unfurled]
-  (fn [[current-chat-input link-previews]]
-    (+ (:input-content-height current-chat-input)
-       ;;(when link-previews 100)
-       76)))
+  (fn [[{:keys [input-content-height metadata]} link-previews]]
+    (let [{:keys [responding-to-message editing-message sending-image]} metadata]
+      (+ (max composer.constants/input-height input-content-height)
+         (when responding-to-message
+           composer.constants/reply-container-height)
+         (when editing-message
+           composer.constants/edit-container-height)
+         (when (seq sending-image)
+           composer.constants/images-container-height)
+         (when (seq link-previews)
+           composer.constants/links-container-height)
+         composer.constants/bar-container-height
+         composer.constants/actions-container-height))))
 
 (re-frame/reg-sub
  :chats/sending-image

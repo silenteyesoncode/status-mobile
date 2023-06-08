@@ -23,6 +23,7 @@
 (defonce ^:const loading-indicator-extra-spacing 250)
 (defonce ^:const loading-indicator-page-loading-height 100)
 (defonce ^:const scroll-animation-input-range [50 125])
+(defonce ^:const spacing-between-composer-and-content 64)
 
 (defonce messages-list-ref (atom nil))
 (defonce messages-view-height (reagent/atom 0))
@@ -126,12 +127,13 @@
 (defn list-header
   [insets composer-height]
   [rn/view
-   {:background-color "red" ;;(colors/theme-colors colors/white colors/neutral-95)
+   {:background-color (colors/theme-colors colors/white colors/neutral-95)
     :margin-bottom    (- 0
                          (:top insets)
                          (when platform/ios? style/overscroll-cover-height))
     :height           (+ composer-height
                          (:bottom insets)
+                         spacing-between-composer-and-content
                          (when platform/ios? style/overscroll-cover-height))}])
 
 (defn f-list-footer-avatar
@@ -225,13 +227,15 @@
 
 (defn render-fn
   [{:keys [type value content-type] :as message-data} _ _
-   {:keys [context keyboard-shown?]}]
-  [rn/view {:background-color (colors/theme-colors colors/white colors/neutral-95)}
-   (if (= type :datemark)
-     [quo/divider-date value]
-     (if (= content-type constants/content-type-gap)
-       [message.gap/gap message-data]
-       [message/message message-data context keyboard-shown?]))])
+   {:keys [context keyboard-shown? insets composer-height]}]
+  (if (= type :footer)
+    [list-header insets composer-height]
+    [rn/view {:background-color (colors/theme-colors colors/white colors/neutral-95)}
+     (if (= type :datemark)
+       [quo/divider-date value]
+       (if (= content-type constants/content-type-gap)
+         [message.gap/gap message-data]
+         [message/message message-data context keyboard-shown?]))]))
 
 (defn scroll-handler
   [event scroll-y]
@@ -245,7 +249,8 @@
   (reagent/create-class
     {:component-did-mount
      (fn []
-       (background-timer/set-timeout #(scroll-to-offset 100) 100))
+       (background-timer/set-timeout #(some-> ^js @messages-list-ref
+                                              (.scrollToIndex #js {:y 0 :animated true :viewPosition 0})) 1000))
 
      :reagent-render
      (fn []
@@ -260,21 +265,22 @@
             :ref                          list-ref
             :header                       [:<>
                                            (when (= (:chat-type chat) constants/private-group-chat-type)
-                                             [list-group-chat-header chat])
-                                           [list-header insets composer-height]]
+                                             [list-group-chat-header chat])]
             :footer                       [list-footer
                                            {:chat           chat
                                             :scroll-y       scroll-y
                                             :cover-bg-color cover-bg-color
                                             :on-layout      footer-on-layout}]
-            :data                         messages
+            :data                         (into [{:type :footer}] messages)
             :render-data                  {:context         context
-                                           :keyboard-shown? keyboard-shown?}
+                                           :keyboard-shown? keyboard-shown?
+                                           :insets          insets
+                                           :composer-height composer-height}
             :render-fn                    render-fn
             :on-viewable-items-changed    on-viewable-items-changed
             :on-end-reached               #(list-on-end-reached scroll-y)
             :on-scroll-to-index-failed    identity
-            :scroll-indicator-insets      {:top (- composer-height 16)}
+            :scroll-indicator-insets      {:top (- composer-height 12)}
             :keyboard-dismiss-mode        :interactive
             :keyboard-should-persist-taps :handled
             :on-momentum-scroll-begin     state/start-scrolling
