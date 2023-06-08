@@ -23,7 +23,6 @@
 (defonce ^:const loading-indicator-extra-spacing 250)
 (defonce ^:const loading-indicator-page-loading-height 100)
 (defonce ^:const scroll-animation-input-range [50 125])
-(defonce ^:const spacing-between-composer-and-content 64)
 
 (defonce messages-list-ref (atom nil))
 (defonce messages-view-height (reagent/atom 0))
@@ -125,15 +124,14 @@
           loading-indicator-page-loading-height)]])))
 
 (defn list-header
-  [insets]
+  [insets composer-height]
   [rn/view
-   {:background-color (colors/theme-colors colors/white colors/neutral-95)
+   {:background-color "red" ;;(colors/theme-colors colors/white colors/neutral-95)
     :margin-bottom    (- 0
                          (:top insets)
                          (when platform/ios? style/overscroll-cover-height))
-    :height           (+ composer.constants/composer-default-height
+    :height           (+ composer-height
                          (:bottom insets)
-                         spacing-between-composer-and-content
                          (when platform/ios? style/overscroll-cover-height))}])
 
 (defn f-list-footer-avatar
@@ -244,53 +242,57 @@
 
 (defn messages-list-content
   [{:keys [chat insets scroll-y cover-bg-color keyboard-shown?]}]
-  (let [context     (rf/sub [:chats/current-chat-message-list-view-context])
-        messages    (rf/sub [:chats/raw-chat-messages-stream (:chat-id chat)])
-        recording?  (rf/sub [:chats/recording?])
-        all-loaded? (rf/sub [:chats/all-loaded? (:chat-id chat)])]
-    [rn/view {:style {:flex 1}}
-     [rn/flat-list
-      {:key-fn                       list-key-fn
-       :ref                          list-ref
-       :header                       [:<>
-                                      (when (= (:chat-type chat) constants/private-group-chat-type)
-                                        [list-group-chat-header chat])
-                                      [list-header insets]]
-       :footer                       [list-footer
-                                      {:chat           chat
-                                       :scroll-y       scroll-y
-                                       :cover-bg-color cover-bg-color
-                                       :on-layout      footer-on-layout}]
-       :data                         messages
-       :render-data                  {:context         context
-                                      :keyboard-shown? keyboard-shown?}
-       :render-fn                    render-fn
-       :on-viewable-items-changed    on-viewable-items-changed
-       :on-end-reached               #(list-on-end-reached scroll-y)
-       :on-scroll-to-index-failed    identity
-       :content-container-style      {:padding-bottom style/messages-list-bottom-offset}
-       :scroll-indicator-insets      {:top (- composer.constants/composer-default-height 16)}
-       :keyboard-dismiss-mode        :interactive
-       :keyboard-should-persist-taps :handled
-       :on-momentum-scroll-begin     state/start-scrolling
-       :on-momentum-scroll-end       state/stop-scrolling
-       :scroll-event-throttle        16
-       :on-scroll                    (fn [event]
-                                       (scroll-handler event scroll-y)
-                                       (when on-scroll
-                                         (on-scroll event)))
-       :style                        {:background-color (if all-loaded?
-                                                          cover-bg-color
-                                                          (colors/theme-colors colors/white
-                                                                               colors/neutral-95))}
-       :inverted                     true
-       :on-layout                    (fn [e]
-                                       ;; FIXME: this is due to Android not triggering the initial
-                                       ;; scrollTo event
-                                       (scroll-to-offset 1)
-                                       (let [layout-height (oops/oget e "nativeEvent.layout.height")]
-                                         (reset! messages-view-height layout-height)))
-       :scroll-enabled               (not recording?)}]]))
+  (reagent/create-class
+    {:component-did-mount
+     (fn []
+       (background-timer/set-timeout #(scroll-to-offset 100) 100))
+
+     :reagent-render
+     (fn []
+       (let [context (rf/sub [:chats/current-chat-message-list-view-context])
+             messages (rf/sub [:chats/raw-chat-messages-stream (:chat-id chat)])
+             recording? (rf/sub [:chats/recording?])
+             all-loaded? (rf/sub [:chats/all-loaded? (:chat-id chat)])
+             composer-height (rf/sub [:chats/composer-height])]
+         [rn/view {:style {:flex 1}}
+          [rn/flat-list
+           {:key-fn                       list-key-fn
+            :ref                          list-ref
+            :header                       [:<>
+                                           (when (= (:chat-type chat) constants/private-group-chat-type)
+                                             [list-group-chat-header chat])
+                                           [list-header insets composer-height]]
+            :footer                       [list-footer
+                                           {:chat           chat
+                                            :scroll-y       scroll-y
+                                            :cover-bg-color cover-bg-color
+                                            :on-layout      footer-on-layout}]
+            :data                         messages
+            :render-data                  {:context         context
+                                           :keyboard-shown? keyboard-shown?}
+            :render-fn                    render-fn
+            :on-viewable-items-changed    on-viewable-items-changed
+            :on-end-reached               #(list-on-end-reached scroll-y)
+            :on-scroll-to-index-failed    identity
+            :scroll-indicator-insets      {:top (- composer-height 16)}
+            :keyboard-dismiss-mode        :interactive
+            :keyboard-should-persist-taps :handled
+            :on-momentum-scroll-begin     state/start-scrolling
+            :on-momentum-scroll-end       state/stop-scrolling
+            :scroll-event-throttle        16
+            :on-scroll                    (fn [event]
+                                            (scroll-handler event scroll-y)
+                                            (when on-scroll
+                                              (on-scroll event)))
+            :style                        {:background-color (if all-loaded?
+                                                               cover-bg-color
+                                                               (colors/theme-colors colors/white
+                                                                                    colors/neutral-95))}
+            :inverted                     true
+            :on-layout                    (fn [e]
+                                            (let [layout-height (oops/oget e "nativeEvent.layout.height")]
+                                              (reset! messages-view-height layout-height)))
+            :scroll-enabled               (not recording?)}]]))}))
 
 (defn f-messages-list
   [{:keys [chat cover-bg-color header-comp footer-comp]}]

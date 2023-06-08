@@ -140,6 +140,16 @@
  (fn [[chat-id inputs]]
    (get inputs chat-id)))
 
+;; TODO(alwx):
+(re-frame/reg-sub
+  :chats/composer-height
+  :<- [:chats/current-chat-input]
+  :<- [:chats/link-previews-unfurled]
+  (fn [[current-chat-input link-previews]]
+    (+ (:input-content-height current-chat-input)
+       ;;(when link-previews 100)
+       76)))
+
 (re-frame/reg-sub
  :chats/sending-image
  :<- [:chats/current-chat-id]
