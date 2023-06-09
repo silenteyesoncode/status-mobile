@@ -246,7 +246,8 @@
             base-color    (get-in colors-map
                                   [(if (= color-keyword :yinyang)
                                      (if (theme/dark?) :yang :yin)
-                                     (keyword color)) suffix])]
+                                     (keyword color)) suffix]
+                                  color)]
         (if opacity (alpha base-color (/ opacity 100)) base-color))))))
 
 (defn custom-color-by-theme

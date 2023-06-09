@@ -74,7 +74,7 @@
   [chat id communities]
   {:title               (:chat-name chat)
    :avatar-params       {}
-   :customization-color (or (:customization-color chat) :primary)
+   :customization-color (or (:color chat) :primary)
    :on-close            #(re-frame/dispatch [:shell/close-switcher-card id])
    :on-press            #(re-frame/dispatch [:chat/navigate-to-chat id])
    :content             (get-card-content chat communities)})
@@ -83,10 +83,11 @@
   [community id]
   (let [profile-picture (community-avatar community)]
     {:title               (:name community)
+     :banner              {:uri (get-in (:images community) [:banner :uri])}
      :avatar-params       (if profile-picture
                             {:source profile-picture}
                             {:name (:name community)})
-     :customization-color (or (:customization-color community) :primary)
+     :customization-color (or (:color community) :primary)
      :on-close            #(re-frame/dispatch [:shell/close-switcher-card id])
      :on-press            #(re-frame/dispatch [:navigate-to :community-overview id])
      :content             {:community-info {:type :permission}}}))
@@ -95,13 +96,14 @@
   [community community-id channel channel-id]
   (merge
    (community-card community community-id)
-   {:content  {:community-channel {:emoji        (:emoji channel)
-                                   :channel-name (str "# " (:name channel))}}
-    :on-press (fn []
-                (re-frame/dispatch [:navigate-to :community-overview community-id])
-                (js/setTimeout
-                 #(re-frame/dispatch [:chat/navigate-to-chat channel-id])
-                 100))}))
+   {:content             {:community-channel {:emoji        (:emoji channel)
+                                              :channel-name (str "# " (:name channel))}}
+    :customization-color (or (:color channel) :primary)
+    :on-press            (fn []
+                           (re-frame/dispatch [:navigate-to :community-overview community-id])
+                           (js/setTimeout
+                            #(re-frame/dispatch [:chat/navigate-to-chat channel-id])
+                            100))}))
 
 (def memo-shell-cards (atom nil))
 

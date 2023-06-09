@@ -190,8 +190,8 @@
      [rn/view {:style (style/base-container color-50)}
       (when banner
         [rn/image
-         {:source (:source banner)
-          :style  {:width 160}}])
+         {:source banner
+          :style  {:width 160 :height 65}}])
       [rn/view {:style style/secondary-container}
        [quo/text
         {:size            :paragraph-1
