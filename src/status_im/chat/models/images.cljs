@@ -21,25 +21,20 @@
                          :path   temp-image-url}))
       (.fetch "GET" base64-uri)
       (.then #(on-success (.path %)))
-      (.catch #(log/error "could not save image"))))
+      (.catch #(log/error (str "could not download image" %)))))
 
-(defn save-to-gallery [path] (.save CameraRoll path))
+(defn save-to-gallery
+  [path]
+  (-> (.save CameraRoll path)
+      (.then #(fs/unlink path))
+      (.catch #(fs/unlink path))))
 
-(re-frame/reg-fx
- ::save-image-to-gallery
- (fn [base64-uri]
-   (if platform/ios?
-     (-> (download-image-http base64-uri save-to-gallery)
-         (.catch #(utils/show-popup (i18n/label :t/error)
-                                    (i18n/label :t/external-storage-denied))))
-     (permissions/request-permissions
-      {:permissions [:write-external-storage]
-       :on-allowed  #(download-image-http base64-uri save-to-gallery)
-       :on-denied   (fn []
-                      (utils/set-timeout
-                       #(utils/show-popup (i18n/label :t/error)
-                                          (i18n/label :t/external-storage-denied))
-                       50))}))))
+
+(defn save-image-to-gallery
+  [base64-uri success-cb]
+  (-> (download-image-http base64-uri save-to-gallery)
+      (.then success-cb)
+      (.catch #(log/error (str "could not save image to gallery" %)))))
 
 (re-frame/reg-fx
  ::chat-open-image-picker-camera

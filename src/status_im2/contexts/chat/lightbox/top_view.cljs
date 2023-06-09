@@ -6,10 +6,13 @@
     [react-native.orientation :as orientation]
     [react-native.platform :as platform]
     [react-native.reanimated :as reanimated]
+    [status-im.utils.http :as http]
     [status-im2.contexts.chat.lightbox.animations :as anim]
     [status-im2.contexts.chat.lightbox.style :as style]
     [utils.datetime :as datetime]
+    [utils.i18n :as i18n]
     [utils.re-frame :as rf]
+    [status-im.chat.models.images :as images]
     [status-im2.contexts.chat.lightbox.constants :as c]))
 
 (defn animate-rotation
@@ -39,14 +42,33 @@
         (anim/animate top-view-width screen-width)
         (anim/animate top-view-bg colors/neutral-100-opa-0)))))
 
+(defn drawer
+  [uri]
+  [quo/action-drawer
+   [[{:icon                :i/save
+      :accessibility-label :save-image
+      :label               (i18n/label :t/save-image-library)
+      :on-press            (fn []
+                             (rf/dispatch [:hide-bottom-sheet])
+                             (images/save-image-to-gallery
+                              uri
+                              #(rf/dispatch [:toasts/upsert
+                                             {:id              :random-id
+                                              :icon            :correct
+                                              :icon-color      colors/success-50
+                                              :container-style {:bottom (when platform/android? 20)}
+                                              :text            (i18n/label :t/photo-saved)}])))}]]])
+
 (defn top-view
-  [{:keys [from timestamp]} insets index animations derived landscape? screen-width]
+  [{:keys [from timestamp content]} insets index animations derived landscape? screen-width]
   (let [display-name                       (first (rf/sub [:contacts/contact-two-names-by-identity
                                                            from]))
         bg-color                           (if landscape?
                                              colors/neutral-100-opa-70
                                              colors/neutral-100-opa-0)
-        {:keys [background-color opacity]} animations]
+        {:keys [background-color opacity]} animations
+        uri                                (http/replace-port (:image content)
+                                                              (rf/sub [:mediaserver/port]))]
     [reanimated/view
      {:style
       (style/top-view-container (:top insets) screen-width bg-color landscape? animations derived)}
@@ -83,5 +105,6 @@
        [quo/icon :share {:size 20 :color colors/white}]]
       [rn/touchable-opacity
        {:active-opacity 1
+        :on-press       #(rf/dispatch [:show-bottom-sheet {:content (fn [] [drawer uri])}])
         :style          style/close-container}
        [quo/icon :options {:size 20 :color colors/white}]]]]))
