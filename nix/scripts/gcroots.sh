@@ -15,8 +15,13 @@ if [[ -z "${TARGET}" ]]; then
     exit 1
 fi
 
+if [[ -n "${NIX_SYSTEM}" ]]; then
+    systemArg="--argstr system ${SYSTEM}"
+fi
+
 # Creates a symlink to derivation in _NIX_GCROOTS directory.
 # This prevents it from being removed by 'gc-collect-garbage'.
 nix-instantiate --attr "${TARGET}" \
+    ${systemArg} \
     --add-root "${_NIX_GCROOTS}/${TARGET}" \
     "${@}" "${GIT_ROOT}/default.nix" >/dev/null

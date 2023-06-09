@@ -1,6 +1,7 @@
 {
   config ? {},
-  pkgs ? import ./pkgs.nix { inherit config; }
+  system,
+  pkgs ? import ./pkgs.nix { inherit config system; }
 }:
 
 let

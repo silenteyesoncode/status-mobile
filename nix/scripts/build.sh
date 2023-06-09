@@ -54,6 +54,10 @@ nixOpts=(
   "--attr" "${TARGET}"
 )
 
+if [[ -n "${NIX_SYSTEM}" ]]; then
+    nixOpts+=("--argstr" "system" "${NIX_SYSTEM}")
+fi
+
 # Save derivation from being garbage collected
 "${GIT_ROOT}/nix/scripts/gcroots.sh" "${TARGET}" "${@}"
 

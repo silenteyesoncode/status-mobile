@@ -1,6 +1,6 @@
 # This file controls the pinned version of nixpkgs we use for our Nix environment
 # as well as which versions of package we use, including their overrides.
-{ config ? { } }:
+{ config ? { } , system}:
 
 let
   inherit (import <nixpkgs> { }) fetchFromGitHub;
@@ -30,4 +30,5 @@ in
   (import nixpkgsSrc) {
     config = defaultConfig // config;
     overlays = [ pkgsOverlay ];
+    inherit system;
   }

@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-#
 # This script is used by the Makefile to have an implicit nix-shell.
 # The following environment variables modify the script behavior:
 # - TARGET: This attribute is passed via --attr to Nix, defining the scope.
@@ -62,6 +61,10 @@ fi
 if [[ -n "${_NIX_PURE}" ]]; then
     nixArgs+=("--pure")
     pureDesc='pure '
+fi
+
+if [[ -n "${NIX_SYSTEM}" ]]; then
+    nixArgs+=("--argstr system ${NIX_SYSTEM}")
 fi
 
 echo -e "${GRN}Configuring ${pureDesc}Nix shell for target '${TARGET}'...${RST}" 1>&2
