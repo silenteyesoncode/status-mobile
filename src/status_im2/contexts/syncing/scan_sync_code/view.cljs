@@ -289,20 +289,20 @@
             ;; The below check is to prevent scanning of any QR code
             ;; when the user is in syncing progress screen
             user-in-syncing-progress-screen? (= (rf/sub [:view-id]) :syncing-progress)
-            on-read-code                     (fn [data]
-                                               (when (and (not @read-qr-once?)
-                                                          (not user-in-syncing-progress-screen?))
-                                                 (reset! read-qr-once? true)
-                                                 (js/setTimeout (fn []
-                                                                  (reset! read-qr-once? false))
-                                                                3000)
-                                                 (check-qr-code-data data)))
-            scan-qr-code-tab?                (= @active-tab 1)
-            show-camera?                     (and scan-qr-code-tab?
-                                                  @camera-permission-granted?
-                                                  @preflight-check-passed?)
-            show-holes?                      (and show-camera?
-                                                  (boolean (not-empty @qr-view-finder)))
+            on-read-code (fn [data]
+                           (when (and (not @read-qr-once?)
+                                      (not user-in-syncing-progress-screen?))
+                             (reset! read-qr-once? true)
+                             (js/setTimeout (fn []
+                                              (reset! read-qr-once? false))
+                                            3000)
+                             (check-qr-code-data data)))
+            scan-qr-code-tab? (= @active-tab 1)
+            show-camera? (and scan-qr-code-tab?
+                              @camera-permission-granted?
+                              @preflight-check-passed?)
+            show-holes? (and show-camera?
+                             (boolean (not-empty @qr-view-finder)))
             title-opacity (reanimated/use-shared-value 0)
             subtitle-opacity (reanimated/use-shared-value 0)
             content-opacity (reanimated/use-shared-value 0)
