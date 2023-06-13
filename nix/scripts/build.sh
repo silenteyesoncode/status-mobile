@@ -54,9 +54,16 @@ nixOpts=(
   "--attr" "${TARGET}"
 )
 
-if [[ -n "${NIX_SYSTEM}" ]]; then
-    nixOpts+=("--argstr" "system" "${NIX_SYSTEM}")
+config=''
+if [[ -n "${CI}" ]]; then
+    config+="status-im.ci-build=true;"
+else
+    config+="status-im.ci-build=false;"
 fi
+if [[ -n "$config" ]]; then
+    nixOpts+=("--arg" "config" "{${config}}")
+fi
+
 
 # Save derivation from being garbage collected
 "${GIT_ROOT}/nix/scripts/gcroots.sh" "${TARGET}" "${@}"

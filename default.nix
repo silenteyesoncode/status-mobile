@@ -1,8 +1,8 @@
 # for passing build options, see nix/README.md
-{ config ? { } , system ? builtins.currentSystem}:
+{ config ? { } }:
 
 let
-  main = import ./nix { inherit config system; };
+  main = import ./nix { inherit config; };
 in {
   # this is where the --attr argument selects the shell or target
   inherit (main) pkgs targets shells;

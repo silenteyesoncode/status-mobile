@@ -1,6 +1,6 @@
 # This file controls the pinned version of nixpkgs we use for our Nix environment
 # as well as which versions of package we use, including their overrides.
-{ config ? { } , system}:
+{ config ? { } }:
 
 let
   inherit (import <nixpkgs> { }) fetchFromGitHub;
@@ -22,13 +22,28 @@ let
 
   # Status specific configuration defaults
   defaultConfig = import ./config.nix;
+  inherit config;
+  mergedConfig = defaultConfig // config;
 
   # Override some packages and utilities
   pkgsOverlay = import ./overlay.nix;
+
+  # Override system for local Apple Silicon builds (see PR-16237)
+  ci-build = if (builtins.hasAttr "status-im" mergedConfig) && (builtins.hasAttr "ci-build" mergedConfig.status-im)
+  then
+    builtins.getAttr "ci-build" mergedConfig.status-im
+  else
+    "false";
+
+  system = if !ci-build && builtins.currentSystem == "aarch64-darwin"
+  then
+    "x86_64-darwin"
+  else
+    builtins.currentSystem;
 in
   # import nixpkgs with a config override
   (import nixpkgsSrc) {
-    config = defaultConfig // config;
+    config = mergedConfig;
     overlays = [ pkgsOverlay ];
     inherit system;
   }

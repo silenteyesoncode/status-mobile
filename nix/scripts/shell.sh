@@ -45,6 +45,12 @@ config=''
 if [[ -n "${STATUS_GO_SRC_OVERRIDE}" ]]; then
     config+="status-im.status-go.src-override=\"${STATUS_GO_SRC_OVERRIDE}\";"
 fi
+if [[ -n "${CI}" ]]; then
+    config+="status-im.ci-build=true;"
+else
+    config+="status-im.ci-build=false;"
+fi
+# if BUILD_TYPE?
 config+="status-im.build-type=\"${BUILD_TYPE}\";"
 
 if [[ -n "$config" ]]; then
@@ -61,10 +67,6 @@ fi
 if [[ -n "${_NIX_PURE}" ]]; then
     nixArgs+=("--pure")
     pureDesc='pure '
-fi
-
-if [[ -n "${NIX_SYSTEM}" ]]; then
-    nixArgs+=("--argstr system ${NIX_SYSTEM}")
 fi
 
 echo -e "${GRN}Configuring ${pureDesc}Nix shell for target '${TARGET}'...${RST}" 1>&2

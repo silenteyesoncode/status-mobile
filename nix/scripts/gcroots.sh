@@ -15,13 +15,19 @@ if [[ -z "${TARGET}" ]]; then
     exit 1
 fi
 
-if [[ -n "${NIX_SYSTEM}" ]]; then
-    systemArg="--argstr system ${SYSTEM}"
+config=''
+if [[ -n "${CI}" ]]; then
+    config+="status-im.ci-build=true;"
+else
+    config+="status-im.ci-build=false;"
+fi
+if [[ -n "$config" ]]; then
+    nixArgs+=("--arg config {$config}")
 fi
 
 # Creates a symlink to derivation in _NIX_GCROOTS directory.
 # This prevents it from being removed by 'gc-collect-garbage'.
-nix-instantiate --attr "${TARGET}" \
-    ${systemArg} \
+nix-instantiate --show-trace --attr "${TARGET}" \
     --add-root "${_NIX_GCROOTS}/${TARGET}" \
+    ${nixArgs[@]} \
     "${@}" "${GIT_ROOT}/default.nix" >/dev/null
