@@ -170,9 +170,7 @@
     {:name      :sign-in
      :options   {:layout                 options/onboarding-layout
                  :animations             sign-in-modal-animations
-                 :modalPresentationStyle :overCurrentContext
-                 :hardwareBackButton     {:dismissModalOnPress false
-                                          :popStackOnPress     false}}
+                 :modalPresentationStyle :overCurrentContext}
      :component sign-in/view}
 
     {:name      :syncing-progress

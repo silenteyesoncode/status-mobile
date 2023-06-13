@@ -279,9 +279,10 @@
 
 (defn f-view
   [{:keys [title show-bottom-view?]}]
-  (let [insets         (safe-area/get-insets)
-        active-tab     (reagent/atom 1)
-        qr-view-finder (reagent/atom {})]
+  (let [insets                (safe-area/get-insets)
+        active-tab            (reagent/atom 1)
+        qr-view-finder        (reagent/atom {})
+        should-render-camera? (reagent/atom false)]
     (fn []
       (let [camera-ref (atom nil)
             read-qr-once? (atom false)
@@ -301,7 +302,7 @@
                                                   @camera-permission-granted?
                                                   @preflight-check-passed?)
             show-holes?                      (and show-camera?
-                                                  (boolean (not-empty @qr-view-finder)))]
+                                                  (boolean (not-empty @qr-view-finder)))
             title-opacity (reanimated/use-shared-value 0)
             subtitle-opacity (reanimated/use-shared-value 0)
             content-opacity (reanimated/use-shared-value 0)
