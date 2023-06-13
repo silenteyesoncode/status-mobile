@@ -27,7 +27,7 @@ fi
 
 # Creates a symlink to derivation in _NIX_GCROOTS directory.
 # This prevents it from being removed by 'gc-collect-garbage'.
-nix-instantiate --show-trace --attr "${TARGET}" \
+nix-instantiate --attr "${TARGET}" \
     --add-root "${_NIX_GCROOTS}/${TARGET}" \
     ${nixArgs[@]} \
     "${@}" "${GIT_ROOT}/default.nix" >/dev/null
