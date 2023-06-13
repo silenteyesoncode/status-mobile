@@ -29,17 +29,19 @@ let
   pkgsOverlay = import ./overlay.nix;
 
   # Override system for local Apple Silicon builds (see PR-16237)
-  ci-build = if (builtins.hasAttr "status-im" mergedConfig) && (builtins.hasAttr "ci-build" mergedConfig.status-im)
+  ci-build-debug = if (builtins.hasAttr "status-im" mergedConfig) && (builtins.hasAttr "ci-build" mergedConfig.status-im)
   then
     builtins.getAttr "ci-build" mergedConfig.status-im
   else
     "false";
+  ci-build = builtins.trace ci-build-debug ci-build-debug;
 
-  system = if !ci-build && builtins.currentSystem == "aarch64-darwin"
+  system_debug = if !ci-build && builtins.currentSystem == "aarch64-darwin"
   then
     "x86_64-darwin"
   else
     builtins.currentSystem;
+  system = builtins.trace system_debug system_debug;
 in
   # import nixpkgs with a config override
   (import nixpkgsSrc) {
