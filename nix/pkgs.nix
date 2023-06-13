@@ -33,14 +33,18 @@ let
   then
     builtins.getAttr "ci-build" mergedConfig.status-im
   else
-    "false";
+    false;
   ci-build = builtins.trace ci-build-debug ci-build-debug;
 
-  system_debug = if !ci-build && builtins.currentSystem == "aarch64-darwin"
+  system_debug = if ci-build
   then
-    "x86_64-darwin"
+    builtins.currentSystem
   else
-    builtins.currentSystem;
+    if builtins.currentSystem == "aarch64-darwin"
+    then
+      "x86_64-darwin"
+    else
+      builtins.currentSystem;
   system = builtins.trace system_debug system_debug;
 in
   # import nixpkgs with a config override

@@ -64,7 +64,6 @@ if [[ -n "$config" ]]; then
     nixOpts+=("--arg" "config" "{${config}}")
 fi
 
-
 # Save derivation from being garbage collected
 "${GIT_ROOT}/nix/scripts/gcroots.sh" "${TARGET}" "${@}"
 
