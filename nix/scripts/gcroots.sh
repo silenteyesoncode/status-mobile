@@ -16,7 +16,7 @@ if [[ -z "${TARGET}" ]]; then
 fi
 
 config=''
-if [[ -n "${CI}" ]]; then
+if [[ "${CI}" == "true" ]]; then
     config+="status-im.ci-build=true;"
 else
     config+="status-im.ci-build=false;"
