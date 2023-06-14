@@ -23,7 +23,7 @@
       (.then #(on-success (.path %)))
       (.catch #(log/error (str "could not download image" %)))))
 
-(defn save-to-gallery
+(defn save-image
   [path]
   (-> (.save CameraRoll path)
       (.then #(fs/unlink path))
@@ -32,7 +32,7 @@
 
 (defn save-image-to-gallery
   [base64-uri success-cb]
-  (-> (download-image-http base64-uri save-to-gallery)
+  (-> (download-image-http base64-uri save-image)
       (.then success-cb)
       (.catch #(log/error (str "could not save image to gallery" %)))))
 
