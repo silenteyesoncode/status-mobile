@@ -329,7 +329,7 @@
                                                               0
                                                               0
                                                               :easing4))
-               (if (and @should-render-camera? show-camera? (:x qr-view-finder)) 100 0)))]
+               (if (and @should-render-camera? show-camera? (:x @qr-view-finder)) 500 0)))]
         (reanimated/animate-shared-value-with-delay subtitle-opacity
                                                     1 constants/onboarding-modal-animation-duration
                                                     :easing4 (/
