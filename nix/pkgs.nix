@@ -26,17 +26,18 @@ let
   # Override some packages and utilities
   pkgsOverlay = import ./overlay.nix;
 
-  # Overriding NIXPKGS system: x86_64-darwin (Apple Silicon fix for android-sdk, see PR-16237)
-  system = if builtins.getEnv "CI" == "true" then
-    builtins.currentSystem
-  else if builtins.currentSystem == "aarch64-darwin" then
-    builtins.trace "Overriding NIXPKGS system: x86_64-darwin (Apple Silicon fix for android-sdk, see PR-16237)" "x86_64-darwin"
-  else
-    builtins.currentSystem;
+  # Fix for lack of Android SDK for M1 Macs.
+  systemOverride = let
+    inherit (builtins) currentSystem getEnv;
+  in
+    if getEnv "CI" != "true" && currentSystem == "aarch64-darwin" then
+      "x86_64-darwin"
+    else
+      currentSystem;
 in
   # import nixpkgs with a config override
   (import nixpkgsSrc) {
     config = defaultConfig // config;
     overlays = [ pkgsOverlay ];
-    inherit system;
+    system = systemOverride;
   }
