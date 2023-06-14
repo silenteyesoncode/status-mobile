@@ -23,6 +23,7 @@
 
 (defonce camera-permission-granted? (reagent/atom false))
 (defonce dismiss-animations (atom nil))
+(defonce navigate-back-fn (atom nil))
 
 (defn- f-header
   [active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn]
@@ -44,9 +45,6 @@
          :accessibility-label :close-sign-in-by-syncing
          :override-theme      :dark
          :on-press            (fn []
-                                (rf/dispatch [:navigate-back])
-                                (when @dismiss-animations
-                                  (@dismiss-animations))
                                 (when reset-animations-fn
                                   (reset-animations-fn)))}
         :i/close]]
@@ -313,6 +311,9 @@
               (reset! should-render-camera? false)
               (js/setTimeout
                (fn []
+                 (when @dismiss-animations
+                   (@dismiss-animations))
+                 (rf/dispatch [:navigate-back])
                  (reanimated/animate-shared-value-with-timing
                   content-opacity
                   0
@@ -359,7 +360,8 @@
            (js/setTimeout #(reset! should-render-camera? true)
                           (+ constants/onboarding-modal-animation-duration
                              constants/onboarding-modal-animation-delay
-                             300))))
+                             300))
+           (reset! navigate-back-fn reset-animations-fn)))
         [:<>
          (when @should-render-camera?
            [render-camera show-camera? @qr-view-finder camera-ref on-read-code show-holes?])

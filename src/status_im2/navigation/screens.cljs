@@ -167,11 +167,14 @@
     {:name      :scan-sync-code-page
      :component scan-sync-code-page/view}
 
-    {:name      :sign-in
-     :options   {:layout                 options/onboarding-layout
-                 :animations             sign-in-modal-animations
-                 :modalPresentationStyle :overCurrentContext}
-     :component sign-in/view}
+    {:name                         :sign-in
+     :options                      {:layout                 options/onboarding-layout
+                                    :animations             sign-in-modal-animations
+                                    :modalPresentationStyle :overCurrentContext
+                                    :hardwareBackButton     {:dismissModalOnPress false
+                                                             :popStackOnPress     false}}
+     :hardware-back-button-handler sign-in/navigate-back
+     :component                    sign-in/view}
 
     {:name      :syncing-progress
      :options   {:layout     options/onboarding-layout
