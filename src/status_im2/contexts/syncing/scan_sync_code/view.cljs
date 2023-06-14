@@ -36,7 +36,7 @@
       [reanimated/view
        {:style (reanimated/apply-animations-to-style
                 {:opacity   subtitle-opacity
-                 :transform [{:translateY controls-translate-y}]}
+                 :transform [{:translate-y controls-translate-y}]}
                 {})}
        [quo/button
         {:icon                true
@@ -51,7 +51,7 @@
       [reanimated/view
        {:style (reanimated/apply-animations-to-style
                 {:opacity   subtitle-opacity
-                 :transform [{:translateY controls-translate-y}]}
+                 :transform [{:translate-y controls-translate-y}]}
                 {})}
        [quo/button
         {:before              :i/info
@@ -73,8 +73,8 @@
      [reanimated/view
       {:style (reanimated/apply-animations-to-style
                {:opacity   subtitle-opacity
-                :transform [{:translateX subtitle-translate-x}
-                            {:translateY subtitle-translate-y}
+                :transform [{:translate-x subtitle-translate-x}
+                            {:translate-y subtitle-translate-y}
                             {:scale subtitle-scale}]}
                {})}
       [quo/text
@@ -85,7 +85,7 @@
      [reanimated/view
       {:style (reanimated/apply-animations-to-style
                {:opacity   subtitle-opacity
-                :transform [{:translateY controls-translate-y}]}
+                :transform [{:translate-y controls-translate-y}]}
                style/tabs-container)}
       [quo/segmented-control
        {:size           32
@@ -274,10 +274,10 @@
 
 (defn f-view
   [{:keys [title show-bottom-view?]}]
-  (let [insets                (safe-area/get-insets)
-        active-tab            (reagent/atom 1)
-        qr-view-finder        (reagent/atom {})
-        should-render-camera? (reagent/atom false)]
+  (let [insets         (safe-area/get-insets)
+        active-tab     (reagent/atom 1)
+        qr-view-finder (reagent/atom {})
+        render-camera? (reagent/atom false)]
     (fn []
       (let [camera-ref (atom nil)
             read-qr-once? (atom false)
@@ -305,7 +305,7 @@
             bottom-view-translate-y (reanimated/use-shared-value (+ 42.2 (:bottom insets)))
             reset-animations-fn
             (fn []
-              (reset! should-render-camera? false)
+              (reset! render-camera? false)
               (js/setTimeout
                (fn []
                  (when @dismiss-animations
@@ -354,13 +354,13 @@
              (permissions/permission-granted? :camera
                                               #(reset! camera-permission-granted? %)
                                               #(reset! camera-permission-granted? false)))
-           (js/setTimeout #(reset! should-render-camera? true)
+           (js/setTimeout #(reset! render-camera? true)
                           (+ constants/onboarding-modal-animation-duration
                              constants/onboarding-modal-animation-delay
                              300))
            (reset! navigate-back-fn reset-animations-fn)))
         [:<>
-         (when @should-render-camera?
+         (when @render-camera?
            [render-camera show-camera? @qr-view-finder camera-ref on-read-code show-holes?])
          [rn/view {:style (style/root-container (:top insets))}
           [header active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn]
@@ -371,7 +371,7 @@
           [reanimated/view
            {:style (reanimated/apply-animations-to-style
                     {:opacity   content-opacity
-                     :transform [{:translateY content-translate-y}]}
+                     :transform [{:translate-y content-translate-y}]}
                     {})}
            (case @active-tab
              1 [scan-qr-code-tab qr-view-finder request-camera-permission]

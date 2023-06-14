@@ -42,7 +42,7 @@
      {:style (reanimated/apply-animations-to-style
               {:opacity   top-children-opacity
                :transform [{:scale scale}
-                           {:translateX padding-left}]}
+                           {:translate-x padding-left}]}
               {})}
      (if (label? children)
        [text/text
