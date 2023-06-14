@@ -16,8 +16,6 @@
       src-override = null;
       ipfs-gateway-url = "https://ipfs.status.im/";
     };
-
-    ci-build = false;
   };
 
   # Android SDK requires an accepted license
