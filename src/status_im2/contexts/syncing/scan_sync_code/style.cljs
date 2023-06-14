@@ -65,6 +65,7 @@
 
 (def camera-permission-container
   {:height            335
+   :margin-top        19
    :margin-horizontal screen-padding
    :background-color  colors/white-opa-5
    :border-color      colors/white-opa-10

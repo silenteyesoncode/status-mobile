@@ -205,9 +205,6 @@
 (defn- scan-qr-code-tab
   [qr-view-finder]
   [:<>
-   [rn/view {:style style/scan-qr-code-container}]
-   (when (empty? @qr-view-finder)
-     [qr-scan-hole-area qr-view-finder])
    (if (and @preflight-check-passed?
             @camera-permission-granted?
             (boolean (not-empty @qr-view-finder)))
@@ -329,7 +326,7 @@
                                                               0
                                                               0
                                                               :easing4))
-               (if (and @should-render-camera? show-camera? (:x @qr-view-finder)) 500 0)))]
+               (if show-camera? 500 0)))]
         (reanimated/animate-shared-value-with-delay subtitle-opacity
                                                     1 constants/onboarding-modal-animation-duration
                                                     :easing4 (/
