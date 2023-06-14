@@ -15,19 +15,8 @@ if [[ -z "${TARGET}" ]]; then
     exit 1
 fi
 
-config=''
-if [[ "${CI}" == "true" ]]; then
-    config+="status-im.ci-build=true;"
-else
-    config+="status-im.ci-build=false;"
-fi
-if [[ -n "$config" ]]; then
-    nixArgs+=("--arg config {$config}")
-fi
-
 # Creates a symlink to derivation in _NIX_GCROOTS directory.
 # This prevents it from being removed by 'gc-collect-garbage'.
 nix-instantiate --attr "${TARGET}" \
     --add-root "${_NIX_GCROOTS}/${TARGET}" \
-    ${nixArgs[@]} \
     "${@}" "${GIT_ROOT}/default.nix" >/dev/null

@@ -45,12 +45,6 @@ config=''
 if [[ -n "${STATUS_GO_SRC_OVERRIDE}" ]]; then
     config+="status-im.status-go.src-override=\"${STATUS_GO_SRC_OVERRIDE}\";"
 fi
-if [[ "${CI}" == "true" ]]; then
-    config+="status-im.ci-build=true;"
-else
-    config+="status-im.ci-build=false;"
-fi
-# if BUILD_TYPE?
 config+="status-im.build-type=\"${BUILD_TYPE}\";"
 
 if [[ -n "$config" ]]; then

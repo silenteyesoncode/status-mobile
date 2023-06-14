@@ -22,34 +22,21 @@ let
 
   # Status specific configuration defaults
   defaultConfig = import ./config.nix;
-  inherit config;
-  mergedConfig = defaultConfig // config;
 
   # Override some packages and utilities
   pkgsOverlay = import ./overlay.nix;
 
-  # Override system for local Apple Silicon builds (see PR-16237)
-  ci-build-debug = if (builtins.hasAttr "status-im" mergedConfig) && (builtins.hasAttr "ci-build" mergedConfig.status-im)
-  then
-    builtins.getAttr "ci-build" mergedConfig.status-im
-  else
-    false;
-  ci-build = builtins.trace ci-build-debug ci-build-debug;
-
-  system_debug = if ci-build
-  then
+  # Overriding NIXPKGS system: x86_64-darwin (Apple Silicon fix for android-sdk, see PR-16237)
+  system = if builtins.getEnv "CI" == "true" then
     builtins.currentSystem
+  else if builtins.currentSystem == "aarch64-darwin" then
+    builtins.trace "Overriding NIXPKGS system: x86_64-darwin (Apple Silicon fix for android-sdk, see PR-16237)" "x86_64-darwin"
   else
-    if builtins.currentSystem == "aarch64-darwin"
-    then
-      "x86_64-darwin"
-    else
-      builtins.currentSystem;
-  system = builtins.trace system_debug system_debug;
+    builtins.currentSystem;
 in
   # import nixpkgs with a config override
   (import nixpkgsSrc) {
-    config = mergedConfig;
+    config = defaultConfig // config;
     overlays = [ pkgsOverlay ];
     inherit system;
   }
