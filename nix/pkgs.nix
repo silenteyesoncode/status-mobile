@@ -28,11 +28,11 @@ let
 
   # Overriding NIXPKGS system: x86_64-darwin (Apple Silicon fix for android-sdk, see PR-16237)
   system = if builtins.getEnv "CI" == "true" then
-    builtins.currentSystem
+    builtins.trace "Checking, that system is not overrode: ${builtins.currentSystem}" builtins.currentSystem
   else if builtins.currentSystem == "aarch64-darwin" then
     builtins.trace "Overriding NIXPKGS system: x86_64-darwin (Apple Silicon fix for android-sdk, see PR-16237)" "x86_64-darwin"
   else
-    builtins.currentSystem;
+    builtins.trace "Checking, that system is not overrode: ${builtins.currentSystem}" builtins.currentSystem;
 in
   # import nixpkgs with a config override
   (import nixpkgsSrc) {
