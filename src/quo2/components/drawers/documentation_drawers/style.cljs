@@ -2,8 +2,13 @@
 
 (def container
   {:align-items        :flex-start
+   :background-color :red
    :padding-horizontal 20})
 
 (def content
-  {:margin-top    8
-   :margin-bottom 16})
+  {:margin-top       8
+   :background-color :green
+   :margin-bottom
+   ;16
+   8
+   })
