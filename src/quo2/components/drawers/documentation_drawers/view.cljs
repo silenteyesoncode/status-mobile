@@ -18,8 +18,7 @@
    `content` Content of the drawer
    "
   [{:keys [title show-button? on-press-button button-label button-icon shell?]} content]
-  [gesture/scroll-view {:style                             {:background-color :yellow
-                                                            :margin-bottom    (- (+ (safe-area/get-bottom) 8))}
+  [gesture/scroll-view {:style                             {:margin-bottom (- (+ (safe-area/get-bottom) 8))}
                         :always-bounce-vertical            false
                         :content-inset-adjustment-behavior :never}
    [rn/view {:style style/container}
@@ -31,13 +30,13 @@
                                                         (when shell? :dark))}
       :weight              :semi-bold} title]
     [rn/view {:style style/content :accessibility-label :documentation-drawer-content}
-         content]
-            (when show-button?
-              [button/button
-               (merge {:size                24
-                       :type                (if shell? :blur-bg-outline :outline)
-                       :on-press            on-press-button
-                       :accessibility-label :documentation-drawer-button
-                       :after               button-icon}
-                      (when shell? {:override-theme :dark})) button-label])]])
+     content]
+    (when show-button?
+      [button/button
+       (merge {:size                24
+               :type                (if shell? :blur-bg-outline :outline)
+               :on-press            on-press-button
+               :accessibility-label :documentation-drawer-button
+               :after               button-icon}
+              (when shell? {:override-theme :dark})) button-label])]])
 

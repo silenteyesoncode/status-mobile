@@ -212,9 +212,7 @@
                                             (rn/dismiss-keyboard!)
                                             (rf/dispatch [:show-bottom-sheet
                                                           {:content create-password-doc
-                                                           :shell?  true
-                                                           ;:padding-bottom-override 0
-                                                           }]))]
+                                                           :shell?  true}]))]
     [rn/touchable-without-feedback
      {:on-press   rn/dismiss-keyboard!
       :accessible false}
