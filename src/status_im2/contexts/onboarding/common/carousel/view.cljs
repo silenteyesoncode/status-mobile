@@ -50,15 +50,18 @@
        :progress-bar-width progress-bar-width}]]))
 
 (defn f-view
-  [{:keys [animate? progress paused? header-text background header-background swipeable?]}]
-  (let [window-width       (rf/sub [:dimensions/window-width])
-        status-bar-height  (:status-bar-height @navigation/constants)
+  [{:keys [animate? progress paused? header-text background header-background swipeable? is-dragging?
+           drag-amount]}]
+  (let [window-width (rf/sub [:dimensions/window-width])
+        status-bar-height (:status-bar-height @navigation/constants)
         progress-bar-width (- window-width 40)
-        carousel-left      (animation/carousel-left-position window-width animate? progress)
-        container-view     (if animate? reanimated/view rn/view)]
+        carousel-left
+        (animation/carousel-left-position window-width animate? progress is-dragging? drag-amount)
+        container-view (if animate? reanimated/view rn/view)]
     [:<>
      [gesture/gesture-detector
-      {:gesture (when swipeable? (animation/drag-gesture progress paused?))}
+      {:gesture (when swipeable?
+                  (animation/composed-gestures progress paused? is-dragging? drag-amount))}
       [container-view {:style (style/carousel-container carousel-left animate?)}
        (for [index (range 2)]
          ^{:key index}
