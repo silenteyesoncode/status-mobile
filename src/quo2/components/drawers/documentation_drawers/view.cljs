@@ -4,7 +4,8 @@
             [react-native.core :as rn]
             [react-native.gesture :as gesture]
             [quo2.components.buttons.button :as button]
-            [quo2.foundations.colors :as colors]))
+            [quo2.foundations.colors :as colors]
+            [react-native.safe-area :as safe-area]))
 
 (defn view
   "Options
@@ -14,11 +15,15 @@
    - `button-icon` button icon
    - `on-press-button` On press handler for the button
    - `shell?` use shell theme
-
    `content` Content of the drawer
    "
   [{:keys [title show-button? on-press-button button-label button-icon shell?]} content]
-  [gesture/scroll-view
+  ;; TODO: fix scroll happening when not required
+  [gesture/scroll-view {:style {;:flex-shrink 1
+                                :background-color :yellow
+                                :margin-bottom    (- (+ (safe-area/get-bottom) 8)
+                                                     )
+                                }}
    [rn/view {:style style/container}
     [text/text
      {:size                :heading-2

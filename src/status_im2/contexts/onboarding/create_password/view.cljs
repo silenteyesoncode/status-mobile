@@ -213,7 +213,8 @@
                                             (rf/dispatch [:show-bottom-sheet
                                                           {:content create-password-doc
                                                            :shell?  true
-                                                           :padding-bottom-override 0}]))]
+                                                           ;:padding-bottom-override 0
+                                                           }]))]
     [rn/touchable-without-feedback
      {:on-press   rn/dismiss-keyboard!
       :accessible false}
