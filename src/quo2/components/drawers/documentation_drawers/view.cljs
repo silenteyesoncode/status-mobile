@@ -18,9 +18,10 @@
    `content` Content of the drawer
    "
   [{:keys [title show-button? on-press-button button-label button-icon shell?]} content]
-  [gesture/scroll-view {:style                             {:margin-bottom (- (+ (safe-area/get-bottom) 8))}
-                        :always-bounce-vertical            false
-                        :content-inset-adjustment-behavior :never}
+  [gesture/scroll-view
+   {:style                             {:margin-bottom (- (+ (safe-area/get-bottom) 8))}
+    :always-bounce-vertical            false
+    :content-inset-adjustment-behavior :never}
    [rn/view {:style style/container}
     [text/text
      {:size                :heading-2

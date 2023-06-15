@@ -6,5 +6,7 @@
    :padding-horizontal 20})
 
 (def content
-  {:margin-top       8
-   :margin-bottom    (+ (safe-area/get-bottom) 8)})
+  {:margin-top    8
+   :margin-bottom (+ (safe-area/get-bottom) 8)})
+
+;; TODO: test on iPhone SE
