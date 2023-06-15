@@ -26,7 +26,7 @@
 (defonce navigate-back-fn (atom nil))
 
 (defn- f-header
-  [active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn]
+  [{:keys [active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn]}]
   (let [subtitle-translate-x (reanimated/interpolate subtitle-opacity [0 1] [-13 0])
         subtitle-translate-y (reanimated/interpolate subtitle-opacity [0 1] [-85 0])
         subtitle-scale       (reanimated/interpolate subtitle-opacity [0 1] [0.9 1])
@@ -120,8 +120,8 @@
   (rf/dispatch [:syncing/preflight-outbound-check #(reset! preflight-check-passed? %)]))
 
 (defn- header
-  [active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn]
-  [:f> f-header active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn])
+  [props]
+  [:f> f-header props])
 
 (defn get-labels-and-on-press-method
   []
@@ -363,7 +363,13 @@
          (when @render-camera?
            [render-camera show-camera? @qr-view-finder camera-ref on-read-code show-holes?])
          [rn/view {:style (style/root-container (:top insets))}
-          [header active-tab read-qr-once? title title-opacity subtitle-opacity reset-animations-fn]
+          [header
+           {:active-tab          active-tab
+            :read-qr-once?       read-qr-once?
+            :title               title
+            :title-opacity       title-opacity
+            :subtitle-opacity    subtitle-opacity
+            :reset-animations-fn reset-animations-fn}]
           (when (empty? @qr-view-finder)
             [:<>
              [rn/view {:style style/scan-qr-code-container}]
