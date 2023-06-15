@@ -50,7 +50,9 @@
   [keyboard-shown? children]
   [rn/view {:style {:margin-top :auto}}
    (if keyboard-shown?
-     [blur/ios-view {:style style/blur-button-container}
+     [blur/ios-view {:style style/blur-button-container
+                     :blur-amount   20
+                     :blur-type     :transparent}
       children]
      [rn/view {:style style/view-button-container}
       children])])
@@ -153,8 +155,8 @@
          :disabled                  (or (not (seq @full-name)) @validation-msg)}
         (i18n/label :t/continue)]]]]
     (finally
-     (oops/ocall will-show-listener "remove")
-     (oops/ocall will-hide-listener "remove"))))
+      (oops/ocall will-show-listener "remove")
+      (oops/ocall will-hide-listener "remove"))))
 
 (defn create-profile
   []
