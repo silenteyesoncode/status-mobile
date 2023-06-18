@@ -7,8 +7,7 @@
     [utils.re-frame :as rf]
     [status-im2.contexts.chat.lightbox.animations :as anim]
     [status-im2.contexts.chat.lightbox.constants :as c]
-    [status-im2.contexts.chat.messages.content.text.view :as message-view]
-    [status-im2.constants :as constants]))
+    [status-im2.contexts.chat.messages.content.text.view :as message-view]))
 
 (defn get-small-item-layout
   [_ index]
