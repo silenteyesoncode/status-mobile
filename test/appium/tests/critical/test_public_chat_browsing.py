@@ -454,9 +454,9 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
                                    (", ".join(sent_time_variants), timestamp))
         self.channel_1.verify_message_is_under_today_text(message, self.errors)
         new_message = "new message"
-        self.channel_1.send_message(message)
+        self.channel_1.send_message(new_message)
         self.channel_2.verify_message_is_under_today_text(new_message, self.errors, 60)
-        if self.channel_2.chat_element_by_text(message).username.text != self.username_1:
+        if self.channel_2.chat_element_by_text(new_message).username.text != self.username_1:
             self.errors.append("Default username '%s' is not shown next to the received message" % self.username_1)
         self.errors.verify_no_errors()
 
@@ -542,7 +542,7 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
         self.channel_2.chat_message_input.send_keys(message_text)
         self.channel_2.send_message_button.click()
         chat_element_1 = self.channel_1.chat_element_by_text(message_text)
-        if not chat_element_1.is_element_displayed(sec=60) or chat_element_1.replied_message_text != 'Image':
+        if not chat_element_1.is_element_displayed(sec=60) or chat_element_1.replied_message_text != image_description:
             self.errors.append('Reply message was not received by the sender')
 
         self.errors.verify_no_errors()
@@ -566,7 +566,7 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
         self.channel_2.chat_message_input.send_keys(message_text)
         self.channel_2.send_message_button.click()
         chat_element_1 = self.channel_1.chat_element_by_text(message_text)
-        if not chat_element_1.is_element_displayed(sec=60) or chat_element_1.replied_message_text != 'Image':
+        if not chat_element_1.is_element_displayed(sec=60) or chat_element_1.replied_message_text != image_description:
             self.errors.append('Reply message was not received by the sender')
         self.errors.verify_no_errors()
 
@@ -683,7 +683,9 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
 
     @marks.testrail_id(702894)
     def test_community_contact_block_unblock_offline(self):
-        [home.jump_to_card_by_text('# %s' % self.channel_name) for home in self.homes]
+        for channel in self.channel_1, self.channel_2:
+            if not channel.chat_message_input.is_element_displayed():
+                channel.jump_to_card_by_text('# %s' % self.channel_name)
         self.channel_1.send_message('message to get avatar of user 2 visible in next message')
 
         self.channel_2.just_fyi("Sending message before block")
@@ -697,7 +699,7 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
         chat_element.member_photo.click()
         self.channel_1.block_contact()
 
-        self.chat_1.just_fyi('messages from blocked user are hidden in public chat and close app')
+        self.chat_1.just_fyi('Check that messages from blocked user are hidden in public chat and close app')
         if self.chat_1.chat_element_by_text(message_to_disappear).is_element_displayed():
             self.errors.append("Messages from blocked user is not cleared in public chat ")
         self.chat_1.jump_to_messages_home()
@@ -705,11 +707,11 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
             self.errors.append("1-1 chat from blocked user is not removed!")
         self.chat_1.toggle_airplane_mode()
 
-        self.home_2.just_fyi('send message to public chat while device 1 is offline')
+        self.home_2.just_fyi('Send message to public chat while device 1 is offline')
         message_blocked, message_unblocked = "Message from blocked user", "Hurray! unblocked"
         self.channel_2.send_message(message_blocked)
 
-        self.chat_1.just_fyi('check that new messages from blocked user are not delivered')
+        self.chat_1.just_fyi('Check that new messages from blocked user are not delivered')
         self.chat_1.toggle_airplane_mode()
         self.home_1.jump_to_card_by_text('# %s' % self.channel_name)
         for message in message_to_disappear, message_blocked:
@@ -717,7 +719,7 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
                 self.errors.append(
                     "'%s' from blocked user is fetched from offline in community channel" % message)
 
-        self.chat_2.just_fyi('Unblock user and check that can see further messages')
+        self.chat_1.just_fyi('Unblock user and check that can see further messages')
         # TODO: still no blocked users in new UI
         profile_1 = self.home_1.get_profile_view()
         self.home_1.jump_to_messages_home()
@@ -735,14 +737,16 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
         if not self.chat_1.chat_element_by_text(message_unblocked).is_element_displayed(120):
             self.errors.append("Message was not received in public chat after user unblock!")
 
-        self.home_2.just_fyi("Add blocked user to contacts again after removing(removed automatically when blocked)")
+        self.home_1.just_fyi("Add blocked user to contacts again after removing(removed automatically when blocked)")
         chat_element = self.channel_1.chat_element_by_text(message_unblocked)
         chat_element.find_element()
         chat_element.member_photo.click()
         self.channel_1.profile_add_to_contacts_button.click()
+        self.home_2.just_fyi("Accept contact request after being unblocked")
         self.home_2.jump_to_messages_home()
         self.home_2.handle_contact_request(self.username_1)
-        self.channel_1.profile_send_message_button.wait_and_click()
+        self.channel_1.profile_send_message_button.click_until_absense_of_element(
+            desired_element=self.channel_1.profile_send_message_button)
         self.chat_1.send_message("piy")
 
         self.home_2.just_fyi("Check message in 1-1 chat after unblock")
@@ -760,8 +764,13 @@ class TestCommunityMultipleDeviceMerged(MultipleSharedDeviceTestCase):
 
     @marks.testrail_id(703086)
     def test_community_mark_all_messages_as_read(self):
-        self.channel_1.jump_to_communities_home()
-        self.home_2.jump_to_card_by_text('# %s' % self.channel_name)
+        self.channel_1.click_system_back_button_until_element_is_shown()
+        self.home_1.communities_tab.click()
+        if not self.channel_2.chat_message_input.is_element_displayed():
+            self.channel_2.click_system_back_button_until_element_is_shown()
+            self.home_2.communities_tab.click()
+            self.home_2.get_chat(self.community_name, community=True).click()
+            self.community_2.get_channel(self.channel_name).click()
         self.channel_2.send_message(self.text_message)
         community_1_element = self.community_1.get_chat(self.community_name)
         if not community_1_element.new_messages_public_chat.is_element_displayed(90):
