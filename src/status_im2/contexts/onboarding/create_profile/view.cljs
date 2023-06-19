@@ -1,19 +1,19 @@
 (ns status-im2.contexts.onboarding.create-profile.view
-  (:require [quo2.core :as quo]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
+            [oops.core :as oops]
+            [quo2.core :as quo]
             [quo2.foundations.colors :as colors]
-            [status-im2.contexts.onboarding.create-profile.style :as style]
-            [utils.i18n :as i18n]
+            [react-native.blur :as blur]
             [react-native.core :as rn]
             [react-native.safe-area :as safe-area]
             [reagent.core :as reagent]
-            [status-im2.contexts.onboarding.common.navigation-bar.view :as navigation-bar]
+            [status-im2.constants :as c]
             [status-im2.contexts.onboarding.common.background.view :as background]
+            [status-im2.contexts.onboarding.common.navigation-bar.view :as navigation-bar]
+            [status-im2.contexts.onboarding.create-profile.style :as style]
             [status-im2.contexts.onboarding.select-photo.method-menu.view :as method-menu]
-            [utils.re-frame :as rf]
-            [oops.core :as oops]
-            [react-native.blur :as blur]
-            [status-im2.constants :as c]))
+            [utils.i18n :as i18n]
+            [utils.re-frame :as rf]))
 
 (def emoji-regex
   (new
@@ -97,6 +97,7 @@
           {:style style/profile-input-container}
           [quo/profile-input
            {:customization-color @custom-color
+            :profile-picture     (rf/sub [:intro-wizard/placeholder-avatar @profile-pic])
             :placeholder         (i18n/label :t/your-name)
             :on-press            (fn []
                                    (rf/dispatch [:dismiss-keyboard])

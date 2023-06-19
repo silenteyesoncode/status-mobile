@@ -1,7 +1,10 @@
 (ns status-im2.contexts.onboarding.profiles.view
-  (:require [native-module.core :as native-module]
+  (:require [clojure.string :as string]
+            [native-module.core :as native-module]
             [quo2.core :as quo]
+            [quo2.foundations.colors :as colors]
             [react-native.core :as rn]
+            [react-native.safe-area :as safe-area]
             [reagent.core :as reagent]
             [status-im2.common.confirmation-drawer.view :as confirmation-drawer]
             [status-im2.contexts.onboarding.common.background.view :as background]
@@ -10,10 +13,7 @@
             [utils.i18n :as i18n]
             [utils.re-frame :as rf]
             [utils.security.core :as security]
-            [utils.transforms :as types]
-            [quo2.foundations.colors :as colors]
-            [react-native.safe-area :as safe-area]
-            [clojure.string :as string]))
+            [utils.transforms :as types]))
 
 (defn login-multiaccount
   []
@@ -85,7 +85,7 @@
       :customization-color  (or customization-color :primary)
       :keycard-account?     keycard-pairing
       :show-options-button? true
-      :profile-picture      (when profile-picture {:uri profile-picture})
+      :profile-picture      profile-picture
       :card-style           (style/profiles-profile-card last-item?)
       :on-options-press     #(show-profile-options
                               key-uid
@@ -205,7 +205,7 @@
       [quo/profile-card
        {:name                name
         :customization-color (or customization-color :primary)
-        :profile-picture     (when profile-picture {:uri profile-picture})
+        :profile-picture     profile-picture
         :card-style          style/login-profile-card}]
       [quo/input
        {:type              :password
