@@ -334,3 +334,11 @@
 (def ^:const auth-method-none "none")
 
 (def ^:const image-description-in-lightbox? false)
+
+(def ^:const initials-avatar-font-conf
+  "we pass absolute font file path and uppercase ratio to status-go for media
+  server to serve initials avatar image
+  `:uppercase-ratio` is uppercase-height/line-height for Inter-Medium"
+  {:ios             "Inter-Medium.otf"
+   :android         "Inter-Medium.ttf"
+   :uppercase-ratio 0.603861228044709})

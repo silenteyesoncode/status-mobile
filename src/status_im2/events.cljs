@@ -1,25 +1,29 @@
 (ns status-im2.events
-  (:require [clojure.string :as string]
-            [re-frame.core :as re-frame]
-            [status-im.multiaccounts.login.core :as multiaccounts.login]
-            [native-module.core :as native-module]
-            [status-im.utils.keychain.core :as keychain]
-            [status-im2.common.json-rpc.events]
-            [status-im2.common.theme.core :as theme]
-            [status-im2.common.toasts.events]
-            [status-im2.contexts.add-new-contact.events]
-            status-im2.contexts.onboarding.events
-            [status-im.bottom-sheet.events]
-            [status-im2.navigation.events :as navigation]
-            [status-im2.db :as db]
-            [utils.re-frame :as rf]
-            [utils.datetime :as datetime]
-            status-im2.contexts.share.events
-            status-im2.contexts.syncing.events
-            status-im2.contexts.chat.events
-            status-im2.common.password-authentication.events
-            status-im2.contexts.communities.overview.events
-            status-im2.contexts.chat.photo-selector.events))
+  (:require
+    [clojure.string :as string]
+    [native-module.core :as native-module]
+    [re-frame.core :as re-frame]
+    react-native.fs
+    [status-im.bottom-sheet.events]
+    [status-im.ethereum.ens :as ens]
+    [status-im.multiaccounts.login.core :as multiaccounts.login]
+    [status-im.utils.keychain.core :as keychain]
+    [status-im2.common.json-rpc.events]
+    status-im2.common.password-authentication.events
+    [status-im2.common.theme.core :as theme]
+    [status-im2.common.toasts.events]
+    [status-im2.contexts.add-new-contact.events]
+    status-im2.contexts.chat.events
+    status-im2.contexts.chat.photo-selector.events
+    status-im2.contexts.communities.overview.events
+    status-im2.contexts.onboarding.events
+    status-im2.contexts.share.events
+    status-im2.contexts.syncing.events
+    [status-im2.db :as db]
+    [status-im2.navigation.events :as navigation]
+    [utils.datetime :as datetime]
+    utils.image-server
+    [utils.re-frame :as rf]))
 
 (re-frame/reg-cofx
  :now
@@ -35,6 +39,17 @@
  :setup/init-theme
  (fn []
    (theme/add-device-theme-change-listener)))
+
+(re-frame/reg-fx
+ :setup/get-font-file-for-initials-avatar
+ (fn [callback]
+   (utils.image-server/get-font-file-ready callback)))
+
+(rf/defn init-abs-root-path
+  {:events [:setup/init-font-file-for-initials-avatar]}
+  [{:keys [db]} initials-avatar-font-file]
+  (when-not (string/blank? initials-avatar-font-file)
+    {:db (assoc db :initials-avatar-font-file initials-avatar-font-file)}))
 
 (rf/defn initialize-views
   {:events [:setup/initialize-view]}
@@ -82,31 +97,36 @@
 
 (rf/defn initialize-app-db
   "Initialize db to initial state"
-  [{{:keys         [keycard supported-biometric-auth goto-key-storage?]
+  [{{:keys         [keycard supported-biometric-auth goto-key-storage?
+                    initials-avatar-font-file]
      :network/keys [type]
      :keycard/keys [banner-hidden]}
     :db}]
   {:db (assoc db/app-db
-              :network/type             type
-              :keycard/banner-hidden    banner-hidden
-              :keycard                  (dissoc keycard :secrets :pin :application-info)
-              :supported-biometric-auth supported-biometric-auth
-              :goto-key-storage?        goto-key-storage?
-              :multiaccounts/loading    true)})
+              :initials-avatar-font-file initials-avatar-font-file
+              :network/type              type
+              :keycard/banner-hidden     banner-hidden
+              :keycard                   (dissoc keycard :secrets :pin :application-info)
+              :supported-biometric-auth  supported-biometric-auth
+              :goto-key-storage?         goto-key-storage?
+              :multiaccounts/loading     true)})
 
 (rf/defn start-app
   {:events [:setup/app-started]}
   [cofx]
-  (rf/merge cofx
-            {:setup/init-theme               nil
-             :get-supported-biometric-auth   nil
-             :network/listen-to-network-info nil
-             :keycard/register-card-events   nil
-             :keycard/check-nfc-support      nil
-             :keycard/check-nfc-enabled      nil
-             :keycard/retrieve-pairings      nil
-             :setup/open-multiaccounts       #(do
+  (rf/merge
+   cofx
+   {:setup/init-theme                        nil
+    :get-supported-biometric-auth            nil
+    :network/listen-to-network-info          nil
+    :keycard/register-card-events            nil
+    :keycard/check-nfc-support               nil
+    :keycard/check-nfc-enabled               nil
+    :keycard/retrieve-pairings               nil
+    :setup/open-multiaccounts                #(do
                                                 (re-frame/dispatch [:setup/initialize-multiaccounts %
                                                                     {:logout? false}])
-                                                (re-frame/dispatch [:get-keycard-banner-preference]))}
-            (initialize-app-db)))
+                                                (re-frame/dispatch [:get-keycard-banner-preference]))
+    :setup/get-font-file-for-initials-avatar #(re-frame/dispatch
+                                               [:setup/init-font-file-for-initials-avatar %])}
+   (initialize-app-db)))
