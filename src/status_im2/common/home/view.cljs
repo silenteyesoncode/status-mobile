@@ -6,8 +6,8 @@
     [status-im2.common.home.style :as style]
     [status-im2.common.plus-button.view :as plus-button]
     [status-im2.constants :as constants]
-    [utils.re-frame :as rf]
-    [utils.debounce :refer [dispatch-and-chill]]))
+    [utils.debounce :refer [dispatch-and-chill]]
+    [utils.re-frame :as rf]))
 
 (defn title-column
   [{:keys [label handler accessibility-label customization-color]}]
@@ -51,17 +51,12 @@
 
 (defn- left-section
   [{:keys [avatar]}]
-  (let [{:keys [public-key]} (rf/sub [:multiaccount])
-        online?              (rf/sub [:visibility-status-updates/online? public-key])]
-    [rn/touchable-without-feedback {:on-press #(rf/dispatch [:navigate-to :my-profile])}
-     [rn/view
-      {:accessibility-label :open-profile
-       :style               style/left-section}
-      [quo/user-avatar
-       (merge {:status-indicator? true
-               :size              :small
-               :online?           online?}
-              avatar)]]]))
+  [rn/touchable-without-feedback {:on-press #(rf/dispatch [:navigate-to :my-profile])}
+   [rn/view
+    {:accessibility-label :open-profile
+     :style               style/left-section}
+    [quo/user-avatar
+     (merge {:size :small} avatar)]]])
 
 (defn connectivity-sheet
   []

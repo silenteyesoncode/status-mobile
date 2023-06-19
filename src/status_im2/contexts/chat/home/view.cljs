@@ -7,7 +7,6 @@
             [react-native.core :as rn]
             [react-native.platform :as platform]
             [react-native.safe-area :as safe-area]
-            [status-im.multiaccounts.core :as multiaccounts]
             [status-im2.common.contact-list-item.view :as contact-list-item]
             [status-im2.common.contact-list.view :as contact-list]
             [status-im2.common.home.actions.view :as actions]
@@ -121,8 +120,8 @@
   []
   (let [pending-contact-requests (rf/sub [:activity-center/pending-contact-requests])
         selected-tab             (or (rf/sub [:messages-home/selected-tab]) :tab/recent)
-        {:keys [key-uid]}        (rf/sub [:multiaccount])
-        account                  (rf/sub [:profile/multiaccount])
+        {:keys [images key-uid]} (rf/sub [:profile/multiaccount {:status? true :online? true}])
+        profile-picture          (first images)
         customization-color      (or (:color (rf/sub [:onboarding-2/profile]))
                                      (rf/sub [:profile/customization-color key-uid]))
         top                      (safe-area/get-top)]
@@ -138,8 +137,8 @@
       [common.home/top-nav
        {:type   :grey
         :avatar {:customization-color customization-color
-                 :full-name           (multiaccounts/displayed-name account)
-                 :profile-picture     (multiaccounts/displayed-photo account)}}]
+                 :profile-picture     profile-picture
+                 :ring?               true}}]
       [common.home/title-column
        {:label               (i18n/label :t/messages)
         :handler             #(rf/dispatch [:show-bottom-sheet {:content home.sheet/new-chat}])

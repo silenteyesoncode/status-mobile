@@ -1,19 +1,19 @@
 (ns status-im2.contexts.shell.components.shell-screen.view
-  (:require [utils.i18n :as i18n]
-            [quo2.core :as quo]
+  (:require [quo2.core :as quo]
             [quo2.foundations.colors :as colors]
-            [utils.re-frame :as rf]
-            [react-native.core :as rn]
             [react-native.blur :as blur]
+            [react-native.core :as rn]
             [react-native.linear-gradient :as linear-gradient]
             [react-native.safe-area :as safe-area]
+            [status-im2.common.home.view :as common.home]
+            [status-im2.contexts.shell.components.bottom-tabs.view :as bottom-tabs]
+            [status-im2.contexts.shell.components.shell-screen.style :as style]
+            [status-im2.contexts.shell.components.switcher-cards.view :as switcher-cards]
+            [status-im2.contexts.shell.constants :as shell.constants]
             [status-im2.contexts.shell.state :as state]
             [status-im2.contexts.shell.utils :as utils]
-            [status-im2.common.home.view :as common.home]
-            [status-im2.contexts.shell.constants :as shell.constants]
-            [status-im2.contexts.shell.components.shell-screen.style :as style]
-            [status-im2.contexts.shell.components.bottom-tabs.view :as bottom-tabs]
-            [status-im2.contexts.shell.components.switcher-cards.view :as switcher-cards]))
+            [utils.i18n :as i18n]
+            [utils.re-frame :as rf]))
 
 (defn placeholder
   []
@@ -92,7 +92,7 @@
        [blur/view (bottom-tabs/blur-overlay-params style/top-nav-blur-overlay)])]))
 
 (defn view
-  [customization-color]
+  [customization-color profile-picture]
   (let [switcher-cards (rf/sub [:shell/sorted-switcher-cards])
         width          (rf/sub [:dimensions/window-width])
         top            (safe-area/get-top)
@@ -108,6 +108,8 @@
      [top-nav-blur-overlay top]
      [common.home/top-nav
       {:type   :shell
-       :avatar {:customization-color customization-color}
+       :avatar {:customization-color customization-color
+                :profile-picture     profile-picture
+                :ring?               true}
        :style  {:margin-top top
                 :z-index    2}}]]))
