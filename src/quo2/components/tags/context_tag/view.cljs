@@ -1,10 +1,10 @@
 (ns quo2.components.tags.context-tag.view
-  (:require [quo2.components.avatars.user-avatar.view :as user-avatar]
-            [quo2.components.avatars.group-avatar :as group-avatar]
+  (:require [quo2.components.avatars.group-avatar :as group-avatar]
+            [quo2.components.avatars.user-avatar.style :as user-avatar.style]
+            [quo2.components.avatars.user-avatar.view :as user-avatar]
             [quo2.components.icon :as icons]
             [quo2.components.markdown.text :as text]
             [quo2.components.tags.context-tag.style :as style]
-            [quo2.components.avatars.user-avatar.style :as user-avatar-style]
             [react-native.core :as rn]))
 
 (defn trim-public-key
@@ -46,7 +46,7 @@
                            :style  (assoc text-style :justify-content :center)}
         empty-photo?      (nil? photo)
         avatar-size       :xxs
-        avatar-outer-size (get-in user-avatar-style/sizes [avatar-size :outer])]
+        avatar-outer-size (get-in user-avatar.style/sizes [avatar-size :outer])]
     [rn/view {:flex-direction :row}
      [base-tag (assoc-in params [:style :padding-left] 3)
       (if (and empty-photo? no-avatar-placeholder?)
