@@ -1,14 +1,14 @@
 (ns status-im2.contexts.chat.home.chat-list-item.view
-  (:require [quo2.core :as quo]
+  (:require [clojure.string :as string]
+            [quo2.core :as quo]
             [quo2.foundations.colors :as colors]
             [react-native.core :as rn]
-            [utils.datetime :as datetime]
             [status-im2.common.home.actions.view :as actions]
-            [status-im2.contexts.chat.home.chat-list-item.style :as style]
-            [utils.re-frame :as rf]
             [status-im2.constants :as constants]
-            [clojure.string :as string]
-            [utils.i18n :as i18n]))
+            [status-im2.contexts.chat.home.chat-list-item.style :as style]
+            [utils.datetime :as datetime]
+            [utils.i18n :as i18n]
+            [utils.re-frame :as rf]))
 
 (def max-subheader-length 50)
 
@@ -197,14 +197,12 @@
 (defn avatar-view
   [{:keys [contact chat-id full-name color]}]
   (if contact ; `contact` is passed when it's not a group chat
-    (let [online?    (rf/sub [:visibility-status-updates/online? chat-id])
-          photo-path (rf/sub [:chats/photo-path chat-id])
-          image-key  (if (seq (:images contact)) :profile-picture :ring-background)]
+    (let [photo-path (rf/sub [:chats/photo-path chat-id])]
       [quo/user-avatar
-       {:full-name full-name
-        :size      :small
-        :online?   online?
-        image-key  photo-path}])
+       {:full-name         full-name
+        :status-indicator? false
+        :size              :small
+        :profile-picture   photo-path}])
     [quo/group-avatar
      {:color color
       :size  :medium}]))
