@@ -57,12 +57,29 @@ ifeq ($(UNAME_S),Darwin)
 export NIX_IGNORE_SYMLINK_STORE=1
 endif
 
+ifeq ($(TARGET), android-sdk)
+	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
+endif
+ifeq ($(TARGET), android)
+	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
+endif
+ifeq ($(TARGET), gradle)
+	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
+endif
+ifeq ($(TARGET), keytool)
+	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
+endif
+ifeq ($(TARGET), status-go)
+	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
+endif
+
 #----------------
 # Nix targets
 #----------------
 
 # WARNING: This has to be located right before all the targets.
 SHELL := ./nix/scripts/shell.sh
+
 
 shell: export TARGET ?= default
 shell: ##@prepare Enter into a pre-configured shell
@@ -200,6 +217,7 @@ build-fdroid: export BUILD_ENV = prod
 build-fdroid: export BUILD_TYPE = release
 build-fdroid: export ANDROID_ABI_SPLIT = false
 build-fdroid: export ANDROID_ABI_INCLUDE = armeabi-v7a;arm64-v8a;x86;x86_64
+build-fdroid: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 build-fdroid: ##@build Build release for F-Droid
 	@scripts/build-android.sh
 
@@ -208,6 +226,7 @@ build-android: export BUILD_TYPE ?= nightly
 build-android: export BUILD_NUMBER ?= $(TMP_BUILD_NUMBER)
 build-android: export ANDROID_ABI_SPLIT ?= false
 build-android: export ANDROID_ABI_INCLUDE ?= armeabi-v7a;arm64-v8a;x86
+build-android: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 build-android: ##@build Build unsigned Android APK
 	@scripts/build-android.sh
 
@@ -236,6 +255,7 @@ jsbundle: ##@build Build JavaScript and Clojurescript bundle for iOS and Android
 #--------------
 
 status-go-android: SHELL := /bin/sh
+status-go-android: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 status-go-android: ##@status-go Compile status-go for Android app
 	nix/scripts/build.sh targets.status-go.mobile.android
 

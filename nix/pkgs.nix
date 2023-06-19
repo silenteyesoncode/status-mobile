@@ -28,10 +28,12 @@ let
 
   # Fix for lack of Android SDK for M1 Macs.
   systemOverride = let
-    inherit (builtins) currentSystem getEnv;
+    inherit (builtins) currentSystem getEnv split tail toString;
+    os = toString (tail (split "-" currentSystem));
+    archOverride = getEnv "NIXPKGS_SYSTEM_ARCH_OVERRIDE";
   in
-    if getEnv "CI" != "true" && currentSystem == "aarch64-darwin" then
-      "x86_64-darwin"
+    if archOverride != "" then
+      "${archOverride}-${os}"
     else
       currentSystem;
 in
