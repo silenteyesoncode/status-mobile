@@ -1,9 +1,7 @@
 (ns status-im2.contexts.onboarding.identifiers.profile-card.view
   (:require [react-native.core :as rn]
-            [react-native.hole-view :as hole-view]
             [react-native.reanimated :as reanimated]
             [react-native.masked-view :as masked-view]
-            [react-native.fast-image :as fast-image]
             [reagent.core :as reagent]
             [quo2.core :as quo]
             [quo2.foundations.colors :as colors]
@@ -24,9 +22,8 @@
         user-hash-color      (worklets.identifiers-highlighting/user-hash-color @progress)
         user-hash-opacity    (worklets.identifiers-highlighting/user-hash-opacity @progress)
         emoji-hash-style     (worklets.identifiers-highlighting/emoji-hash-style @progress)]
-    [rn/touchable-without-feedback
-     {:accessibility-label :profile-card}
-     [hole-view/hole-view
+    
+     [rn/view
       {:key   (str name)
        :style style/card-view
        :holes []}
@@ -55,7 +52,7 @@
           {:mask-element (reagent/as-element
                           [rn/view {:style style/mask-view}])}
           (when profile-picture
-            [fast-image/fast-image
+            [rn/image
              {:accessibility-label :ring-background
               :style               style/picture-avatar-mask
               :source              profile-picture}])]]]
@@ -69,7 +66,7 @@
           :number-of-lines 1
           :style           style/user-name} name]]
        [reanimated/text
-        {:number-of-lines 1
+        {:number-of-lines 3
          :style           (reanimated/apply-animations-to-style
                            {:color   user-hash-color
                             :opacity user-hash-opacity}
@@ -81,7 +78,7 @@
         [quo/text
          {:weight          :monospace
           :number-of-lines 1
-          :style           style/emoji-hash} emoji-hash]]]]]))
+          :style           style/emoji-hash} emoji-hash]]]]))
 
 (defn profile-card
   [props]
