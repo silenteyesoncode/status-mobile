@@ -72,6 +72,7 @@
   (-> multiaccount
       (dissoc :customizationColor)
       (assoc :customization-color (keyword customizationColor))
+      (assoc :ens-name? (ens/is-valid-eth-name? (:name multiaccount)))
       (assoc :keycard-pairing
              (when-not
                (string/blank? keycard-pairing)
