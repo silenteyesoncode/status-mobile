@@ -4,7 +4,6 @@
             [quo2.components.code.snippet :as snippet]
             [quo2.components.info.info-message :as info-message]
             [react-native.core :as rn]
-            [status-im2.common.resources :as resources]
             [status-im2.contexts.quo-preview.code.snippet :as snippet-preview]
             [utils.re-frame :as rf]))
 
@@ -37,8 +36,7 @@
                     :status-indicator?   true
                     :online?             true
                     :size                :small
-                    :customization-color :blue
-                    :ring-background     (resources/get-mock-image :ring)}]
+                    :customization-color :blue}]
     :title        "Alisher Yakupov accepted your contact request"
     :duration     4000
     :title-weight :medium
@@ -53,8 +51,7 @@
                 :status-indicator?   true
                 :online?             true
                 :size                :small
-                :customization-color :blue
-                :ring-background     (resources/get-mock-image :ring)}]
+                :customization-color :blue}]
     :title    "Default to semibold title"
     :text     "The quick brown fox jumped over the lazy dog and ate a potatoe."
     :duration 4000
@@ -69,8 +66,7 @@
                 :status-indicator?   true
                 :online?             true
                 :size                :small
-                :customization-color :blue
-                :ring-background     (resources/get-mock-image :ring)}]
+                :customization-color :blue}]
     :header   [rn/view
                [info-message/info-message
                 {:type :success
