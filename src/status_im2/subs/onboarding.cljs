@@ -51,6 +51,22 @@
    (recover/existing-account? (:root-key intro-wizard) multiaccounts)))
 
 (re-frame/reg-sub
+ :intro-wizard/placeholder-avatar
+ :<- [:mediaserver/port]
+ :<- [:initials-avatar-font-file]
+ (fn [[port font-file] [_ profile-pic]]
+   {:fn
+    (if profile-pic
+      (image-server/get-account-image-uri-fn {:port           port
+                                              :image-name     profile-pic
+                                              :override-ring? false
+                                              :theme          (theme/get-theme)})
+      (image-server/get-initials-avatar-uri-fn {:port           port
+                                                :theme          (theme/get-theme)
+                                                :override-ring? false
+                                                :font-file      font-file}))}))
+
+(re-frame/reg-sub
  :multiaccounts/login-profiles-picture
  :<- [:multiaccounts/multiaccounts]
  :<- [:mediaserver/port]
