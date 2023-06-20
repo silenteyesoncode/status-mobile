@@ -74,7 +74,7 @@
     (effects/edit props state subs)
     (effects/reply props animations subs)
     (effects/update-input-mention state subs)
-    (effects/edit-mentions props state subs)
+    #_(effects/edit-mentions props state subs)
     (effects/link-previews props state animations subs)
     (effects/images props state animations subs)
     [:<>
