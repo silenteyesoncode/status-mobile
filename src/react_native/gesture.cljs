@@ -6,14 +6,17 @@
               Swipeable
               TouchableWithoutFeedback
               gestureHandlerRootHOC
+              GestureHandlerRootView
               FlatList
-              ScrollView)]
+              ScrollView)
+             :as rngh]
             [react-native.flat-list :as rn-flat-list]
             [reagent.core :as reagent]))
 
 (def gesture-detector (reagent/adapt-react-class GestureDetector))
 
 (def gesture-handler-root-hoc gestureHandlerRootHOC)
+(def gesture-handler-root-view (reagent/adapt-react-class GestureHandlerRootView))
 
 (defn gesture-tap [] (.Tap ^js Gesture))
 

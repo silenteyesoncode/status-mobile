@@ -7,7 +7,10 @@
    :flex-direction   :column
    :justify-content  :center
    :align-items      :center
-   :background-color :transparent})
+   :background-color
+   :red
+   ;:transparent
+   })
 
 (def each-toast-container
   {:width         "100%"
