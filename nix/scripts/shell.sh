@@ -12,55 +12,60 @@ source "${GIT_ROOT}/scripts/colors.sh"
 source "${GIT_ROOT}/nix/scripts/source.sh"
 
 export TERM=xterm # fix for colors
-shift # we remove the first -c from arguments
+shift             # we remove the first -c from arguments
 
 if [[ -z "${TARGET}" ]]; then
-    export TARGET="default"
-    echo -e "${YLW}Missing TARGET, assuming default target.${RST} See nix/README.md for more details." 1>&2
+  export TARGET="default"
+  echo -e "${YLW}Missing TARGET, assuming default target.${RST} See nix/README.md for more details." 1>&2
 fi
 
 # Minimal shell with just Nix sourced, useful for `make nix-gc`.
 if [[ "${TARGET}" == "nix" ]]; then
-    eval $@
-    exit 0
+  eval $@
+  exit 0
 fi
 if [[ -n "${IN_NIX_SHELL}" ]] && [[ -n "${NIX_SHELL_TARGET}" ]]; then
-    if [[ "${NIX_SHELL_TARGET}" == "${TARGET}" ]]; then
-        echo -e "${YLW}Nix shell for TARGET=${TARGET} is already active.${RST}" >&2
-        exit 0
-    else
-        # Nesting nix shells does not work due to how we detect already present shell.
-        echo -e "${RED}Cannot nest Nix shells with different targets!${RST}" >&2
-        exit 1
-    fi
+  if [[ "${NIX_SHELL_TARGET}" == "${TARGET}" ]]; then
+    echo -e "${YLW}Nix shell for TARGET=${TARGET} is already active.${RST}" >&2
+    exit 0
+  else
+    # Nesting nix shells does not work due to how we detect already present shell.
+    echo -e "${RED}Cannot nest Nix shells with different targets!${RST}" >&2
+    exit 1
+  fi
 fi
 
 entryPoint="default.nix"
 nixArgs=(
-    "--show-trace"
-    "--attr shells.${TARGET}"
+  "--show-trace"
+  "--attr shells.${TARGET}"
 )
 
 config=''
 if [[ -n "${STATUS_GO_SRC_OVERRIDE}" ]]; then
-    config+="status-im.status-go.src-override=\"${STATUS_GO_SRC_OVERRIDE}\";"
+  config+="status-im.status-go.src-override=\"${STATUS_GO_SRC_OVERRIDE}\";"
 fi
 config+="status-im.build-type=\"${BUILD_TYPE}\";"
 
 if [[ -n "$config" ]]; then
-    nixArgs+=("--arg config {$config}")
+  nixArgs+=("--arg config {$config}")
 fi
 
 # This variable allows specifying which env vars to keep for Nix pure shell
 # The separator is a colon
 if [[ -n "${_NIX_KEEP}" ]]; then
-    nixArgs+=("--keep ${_NIX_KEEP//,/ --keep }")
+  nixArgs+=("--keep ${_NIX_KEEP//,/ --keep }")
 fi
 
 # Not all builds are ready to be run in a pure environment
 if [[ -n "${_NIX_PURE}" ]]; then
-    nixArgs+=("--pure")
-    pureDesc='pure '
+  nixArgs+=("--pure")
+  pureDesc='pure '
+fi
+
+if [[ "|android-sdk|android|gradle|keytool|status-go|" =~ "|$TARGET|" ]]; then
+  os=$(uname -s | tr '[:upper:]' '[:lower:]')
+  export NIXPKGS_SYSTEM_OVERRIDE="x86_64-${os}"
 fi
 
 echo -e "${GRN}Configuring ${pureDesc}Nix shell for target '${TARGET}'...${RST}" 1>&2
@@ -71,8 +76,8 @@ echo -e "${GRN}Configuring ${pureDesc}Nix shell for target '${TARGET}'...${RST}"
 # ENTER_NIX_SHELL is the fake command used when `make shell` is run.
 # It is just a special string, not a variable, and a marker to not use `--run`.
 if [[ "${@}" == "ENTER_NIX_SHELL" ]]; then
-    export NIX_SHELL_TARGET="${TARGET}"
-    exec nix-shell ${nixArgs[@]} --keep NIX_SHELL_TARGET ${entryPoint}
+  export NIX_SHELL_TARGET="${TARGET}"
+  exec nix-shell ${nixArgs[@]} --keep NIX_SHELL_TARGET ${entryPoint}
 else
-    exec nix-shell ${nixArgs[@]} --run "$@" ${entryPoint}
+  exec nix-shell ${nixArgs[@]} --run "$@" ${entryPoint}
 fi

@@ -73,21 +73,6 @@ ifndef IN_NIX_SHELL
 else
 	@echo "${YELLOW}Nix shell is already active$(RESET)"
 endif
-ifeq ($(TARGET), android-sdk)
-	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
-endif
-ifeq ($(TARGET), android)
-	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
-endif
-ifeq ($(TARGET), gradle)
-	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
-endif
-ifeq ($(TARGET), keytool)
-	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
-endif
-ifeq ($(TARGET), status-go)
-	export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
-endif
 
 nix-repl: SHELL := /bin/sh
 nix-repl: ##@nix Start an interactive Nix REPL
@@ -111,7 +96,6 @@ nix-purge: ##@nix Completely remove Nix setup, including /nix directory
 	nix/scripts/purge.sh
 
 nix-update-gradle: export TARGET := gradle
-nix-update-gradle: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 nix-update-gradle: ##@nix Update maven nix expressions based on current gradle setup
 	nix/deps/gradle/generate.sh
 
@@ -177,7 +161,6 @@ update-fleets: ##@prepare Download up-to-date JSON file with current fleets stat
 		> resources/config/fleets.json
 
 $(KEYSTORE_PATH): export TARGET := keytool
-$(KEYSTORE_PATH): export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 $(KEYSTORE_PATH):
 	@./scripts/generate-keystore.sh
 
@@ -199,7 +182,6 @@ fdroid-fix-tmp: ##@prepare Fix TMPDIR permissions so Vagrant user is the owner
 fdroid-build-env: fdroid-max-watches fdroid-nix-dir fdroid-fix-tmp ##@prepare Setup build environment for F-Droud build
 
 fdroid-pr: export TARGET := android-sdk
-fdroid-pr: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 fdroid-pr: ##@prepare Create F-Droid release PR
 ifndef APK
 	$(error APK env var not defined)
@@ -220,7 +202,6 @@ build-fdroid: export BUILD_ENV = prod
 build-fdroid: export BUILD_TYPE = release
 build-fdroid: export ANDROID_ABI_SPLIT = false
 build-fdroid: export ANDROID_ABI_INCLUDE = armeabi-v7a;arm64-v8a;x86;x86_64
-build-fdroid: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 build-fdroid: ##@build Build release for F-Droid
 	@scripts/build-android.sh
 
@@ -229,12 +210,10 @@ build-android: export BUILD_TYPE ?= nightly
 build-android: export BUILD_NUMBER ?= $(TMP_BUILD_NUMBER)
 build-android: export ANDROID_ABI_SPLIT ?= false
 build-android: export ANDROID_ABI_INCLUDE ?= armeabi-v7a;arm64-v8a;x86
-build-android: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 build-android: ##@build Build unsigned Android APK
 	@scripts/build-android.sh
 
 release-android: export TARGET := keytool
-release-android: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 release-android: export KEYSTORE_PATH ?= $(HOME)/.gradle/status-im.keystore
 release-android: keystore build-android ##@build Build signed Android APK
 	@scripts/sign-android.sh result/app-release-unsigned.apk
@@ -259,7 +238,6 @@ jsbundle: ##@build Build JavaScript and Clojurescript bundle for iOS and Android
 #--------------
 
 status-go-android: SHELL := /bin/sh
-status-go-android: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 status-go-android: ##@status-go Compile status-go for Android app
 	nix/scripts/build.sh targets.status-go.mobile.android
 
@@ -289,7 +267,6 @@ run-re-frisk: ##@run Start re-frisk server
 
 # TODO: Migrate this to a Nix recipe, much the same way as nix/mobile/android/targets/release-android.nix
 run-android: export TARGET := android
-run-android: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 run-android: ##@run Build Android APK and start it on the device
 	npx react-native run-android --appIdSuffix debug
 
@@ -390,7 +367,6 @@ component-test: ##@test Run component tests once in NodeJS
 #--------------
 
 geth-connect: export TARGET := android-sdk
-geth-connect: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 geth-connect: ##@other Connect to Geth on the device
 	adb forward tcp:8545 tcp:8545 && \
 	build/bin/geth attach http://localhost:8545
@@ -400,13 +376,11 @@ ios-clean: ##@prepare Clean iOS build artifacts
 	git clean -dxf -f target/ios
 
 android-clean: export TARGET := gradle
-android-clean: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 android-clean: ##@prepare Clean Gradle state
 	git clean -dxf -f ./android/app/build; \
 	[[ -d android/.gradle ]] && cd android && ./gradlew clean
 
 android-ports: export TARGET := android-sdk
-android-ports: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 android-ports: ##@other Add proxies to Android Device/Simulator
 	adb reverse tcp:8081 tcp:8081 && \
 	adb reverse tcp:3449 tcp:3449 && \
@@ -414,17 +388,14 @@ android-ports: ##@other Add proxies to Android Device/Simulator
 	adb forward tcp:5561 tcp:5561
 
 android-devices: export TARGET := android-sdk
-android-devices: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 android-devices: ##@other Invoke adb devices
 	adb devices
 
 android-logcat: export TARGET := android-sdk
-android-logcat: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 android-logcat: ##@other Read status-mobile logs from Android phone using adb
 	adb logcat | grep -e RNBootstrap -e ReactNativeJS -e ReactNative -e StatusModule -e StatusNativeLogs -e 'F DEBUG   :' -e 'Go      :' -e 'GoLog   :' -e 'libc    :'
 
 android-install: export TARGET := android-sdk
-android-install: export NIXPKGS_SYSTEM_ARCH_OVERRIDE := x86_64
 android-install: export BUILD_TYPE ?= release
 android-install: ##@other Install APK on device using adb
 	adb install result/app-$(BUILD_TYPE).apk
