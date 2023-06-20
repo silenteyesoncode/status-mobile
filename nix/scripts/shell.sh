@@ -63,7 +63,7 @@ if [[ -n "${_NIX_PURE}" ]]; then
   pureDesc='pure '
 fi
 
-if [[ "|android-sdk|android|gradle|keytool|status-go|" =~ "|$TARGET|" ]]; then
+if [[ "|android-sdk|android|gradle|keytool|status-go|" =~ "|${TARGET}|" ]]; then
   os=$(uname -s | tr '[:upper:]' '[:lower:]')
   export NIXPKGS_SYSTEM_OVERRIDE="x86_64-${os}"
 fi
