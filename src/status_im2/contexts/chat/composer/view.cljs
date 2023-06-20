@@ -23,7 +23,19 @@
     [status-im2.contexts.chat.composer.handlers :as handler]
     [status-im2.contexts.chat.composer.gradients.view :as gradients]
     [status-im2.contexts.chat.composer.selection :as selection]
-    [quo2.theme :as theme]))
+    [quo2.theme :as theme]
+    [quo2.core :as quo]))
+
+
+(defn styled-text-input-content
+  [input-with-mentions]
+  (reduce (fn
+            [styled-text [chunk-type chunk-content]]
+            (condp = chunk-type
+              :text    (conj styled-text chunk-content)
+              :mention (conj styled-text [quo/text {:style style/mention} chunk-content])))
+          [quo/text]
+          input-with-mentions))
 
 (defn sheet-component
   [{:keys [insets window-height blur-height opacity background-y]} props state]
@@ -61,7 +73,7 @@
                         subs)
     (effects/edit props state subs)
     (effects/reply props animations subs)
-    (effects/update-input-mention props state subs)
+    (effects/update-input-mention state subs)
     (effects/edit-mentions props state subs)
     (effects/link-previews props state animations subs)
     (effects/images props state animations subs)
@@ -91,7 +103,6 @@
           :style      (style/input-view state)}
          [rn/text-input
           {:ref                      #(reset! (:input-ref props) %)
-           :default-value            @(:text-value state)
            :on-focus                 #(handler/focus props state animations dimensions)
            :on-blur                  #(handler/blur state animations dimensions subs)
            :on-content-size-change   #(handler/content-size-change %
@@ -112,7 +123,8 @@
            :placeholder-text-color   (colors/theme-colors colors/neutral-40 colors/neutral-50)
            :style                    (style/input-text props state subs max-height)
            :max-length               constants/max-text-size
-           :accessibility-label      :chat-message-input}]]
+           :accessibility-label      :chat-message-input}
+          [styled-text-input-content (:input-with-mentions subs)]]]
         [gradients/view props state animations show-bottom-gradient?]
         [link-preview/view]
         [images/images-list]]
