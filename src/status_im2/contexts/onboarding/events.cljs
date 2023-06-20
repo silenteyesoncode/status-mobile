@@ -79,7 +79,10 @@
         effect          (if seed-phrase
                           :multiaccount/restore-account-and-login
                           :multiaccount/create-account-and-login)
+        device-name     (string/join " " ((juxt :model :device-id)
+                                          (native-module/get-device-model-info)))
         request         {:displayName                 display-name
+                         :deviceName                  device-name
                          :password                    (ethereum/sha3 (security/safe-unmask-data
                                                                       password))
                          :mnemonic                    (when seed-phrase
