@@ -57,8 +57,11 @@
        (when (and (not locked?)
                   (or muted? community-muted?))
          [quo2.icons/icon :i/muted
-          {:size     20
-           :no-color true}])
+          {:size        20
+           :resize-mode :center
+           :color       (colors/theme-colors
+                         colors/neutral-40
+                         colors/neutral-50)}])
        (when (and (not locked?)
                   (or (not muted?) (not community-muted?))
                   (pos? (int mentions-count)))

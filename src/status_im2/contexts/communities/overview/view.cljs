@@ -89,8 +89,8 @@
                       (rf/dispatch [:show-bottom-sheet
                                     {:content       (fn [] [actions/chat-actions chat false])
                                      :selected-item (fn []
-                                                      [quo/channel-list-item chat])}])))]])])])
-   community-muted?])
+                                                      [quo/channel-list-item chat])}])))
+             community-muted?]])])])])
 
 (defn request-to-join-text
   [is-open?]
