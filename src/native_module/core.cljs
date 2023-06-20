@@ -537,6 +537,6 @@
   []
   (.logFileDirectory ^js (status)))
 
-(defn init-statusgo-logging
-  [enable? mobile-system? log-level callback]
+(defn init-status-go-logging
+  [{:keys [enable? mobile-system? log-level callback]}]
   (.initLogging ^js (status) enable? mobile-system? log-level callback))

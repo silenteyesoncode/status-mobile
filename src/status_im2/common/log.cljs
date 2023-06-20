@@ -20,12 +20,16 @@
 
 (defn setup
   [level]
-  (let [handle-error (fn [res]
-                       (let [{:keys [error]} (types/json->clj res)]
-                         (when-not (string/blank? error)
-                           (log/error "init statusgo logging failed" error))))]
+  (let [handle-error   (fn [res]
+                         (let [{:keys [error]} (types/json->clj res)]
+                           (when-not (string/blank? error)
+                             (log/error "init statusgo logging failed" error))))
+        logging-params {:enable?        true
+                        :mobile-system? false
+                        :log-level      level
+                        :callback       handle-error}]
     (if (string/blank? level)
-      (native-module/init-statusgo-logging true false "WARN" handle-error)
+      (native-module/init-status-go-logging (merge logging-params {:log-level "WARN"}))
       (do
         (log/set-level! (-> level
                             string/lower-case
@@ -35,7 +39,7 @@
                        (let [res (apply log/default-output-fn data)]
                          (add-log-entry res)
                          res))})
-        (native-module/init-statusgo-logging true false level handle-error)))))
+        (native-module/init-status-go-logging logging-params)))))
 
 (re-frame/reg-fx
  :logs/set-level
