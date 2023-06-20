@@ -12,7 +12,7 @@ source "${GIT_ROOT}/scripts/colors.sh"
 source "${GIT_ROOT}/nix/scripts/source.sh"
 
 export TERM=xterm # fix for colors
-shift             # we remove the first -c from arguments
+shift # we remove the first -c from arguments
 
 if [[ -z "${TARGET}" ]]; then
   export TARGET="default"

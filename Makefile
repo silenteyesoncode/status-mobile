@@ -57,14 +57,12 @@ ifeq ($(UNAME_S),Darwin)
 export NIX_IGNORE_SYMLINK_STORE=1
 endif
 
-
 #----------------
 # Nix targets
 #----------------
 
 # WARNING: This has to be located right before all the targets.
 SHELL := ./nix/scripts/shell.sh
-
 
 shell: export TARGET ?= default
 shell: ##@prepare Enter into a pre-configured shell
