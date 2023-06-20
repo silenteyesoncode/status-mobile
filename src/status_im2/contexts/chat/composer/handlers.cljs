@@ -1,15 +1,15 @@
 (ns status-im2.contexts.chat.composer.handlers
   (:require
-    [oops.core :as oops]
-    [react-native.core :as rn]
-    [react-native.reanimated :as reanimated]
-    [reagent.core :as reagent]
-    [status-im2.contexts.chat.composer.constants :as constants]
-    [status-im2.contexts.chat.composer.keyboard :as kb]
-    [status-im2.contexts.chat.composer.selection :as selection]
-    [status-im2.contexts.chat.composer.utils :as utils]
-    [utils.debounce :as debounce]
-    [utils.re-frame :as rf]))
+   [oops.core :as oops]
+   [react-native.core :as rn]
+   [react-native.reanimated :as reanimated]
+   [reagent.core :as reagent]
+   [status-im2.contexts.chat.composer.constants :as constants]
+   [status-im2.contexts.chat.composer.keyboard :as kb]
+   [status-im2.contexts.chat.composer.selection :as selection]
+   [status-im2.contexts.chat.composer.utils :as utils]
+   [utils.debounce :as debounce]
+   [utils.re-frame :as rf]))
 
 (defn focus
   [{:keys [input-ref] :as props}
@@ -132,7 +132,8 @@
     (@record-reset-fn)
     (reset! recording? false))
   (rf/dispatch [:chat.ui/set-chat-input-text text])
-  (debounce/debounce-and-dispatch [:mention/on-change-text text] 300))
+  (rf/dispatch [:mention/on-change-text text])
+  #_(debounce/debounce-and-dispatch [:mention/on-change-text text] 300))
 
 (defn selection-change
   [event
