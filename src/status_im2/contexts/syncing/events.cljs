@@ -9,7 +9,8 @@
             [taoensso.timbre :as log]
             [utils.re-frame :as rf]
             [utils.security.core :as security]
-            [utils.transforms :as transforms]))
+            [utils.transforms :as transforms]
+            [clojure.string :as string]))
 
 (rf/defn local-pairing-update-role
   {:events [:syncing/update-role]}
@@ -26,6 +27,10 @@
   (let [db {:networks/current-network config/default-network
             :networks/networks        (data-store.settings/rpc->networks config/default-networks)
             :multiaccount             {:installation-id           installation-id
+                                       :device-name               (string/join
+                                                                   " "
+                                                                   ((juxt :model :device-id)
+                                                                    (native-module/get-device-model-info)))
                                        :log-level                 config/log-level
                                        :waku-bloom-filter-mode    false
                                        :custom-bootnodes          nil
