@@ -24,7 +24,7 @@
     [status-im2.contexts.shell.view :as shell]
     [status-im2.contexts.syncing.scan-sync-code-page.view :as scan-sync-code-page]
     [status-im2.contexts.syncing.syncing-devices-list.view :as settings-syncing]
-    [status-im2.contexts.syncing.how-to-pair.view :as how-to-pair]
+    [status-im2.contexts.syncing.syncing-help.view :as syncing-help]
     [status-im2.navigation.options :as options]
     [status-im2.contexts.chat.group-details.view :as group-details]
     [status-im.ui.screens.screens :as old-screens]
@@ -80,9 +80,9 @@
      :options   {:sheet? true}
      :component add-new-contact/new-contact}
 
-    {:name      :how-to-pair
+    {:name      :syncing-help
      :options   {:sheet? true}
-     :component how-to-pair/instructions}
+     :component syncing-help/instructions}
 
     {:name      :discover-communities
      :component communities.discover/discover}

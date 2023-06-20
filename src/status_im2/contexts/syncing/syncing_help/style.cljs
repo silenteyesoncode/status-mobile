@@ -1,4 +1,4 @@
-(ns status-im2.contexts.syncing.how-to-pair.style
+(ns status-im2.contexts.syncing.syncing-help.style
   (:require [quo2.foundations.colors :as colors]
             [react-native.platform :as platform]))
 

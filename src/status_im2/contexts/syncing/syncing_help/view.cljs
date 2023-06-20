@@ -1,15 +1,15 @@
-(ns status-im2.contexts.syncing.how-to-pair.view
-  (:require
-    [react-native.gesture :as gesture]
-    [status-im2.contexts.syncing.how-to-pair.style :as style]
-    [status-im2.common.resources :as resources]
-    [utils.i18n :as i18n]
-    [quo2.core :as quo]
-    [quo2.foundations.colors :as colors]
-    [react-native.core :as rn]
-    [reagent.core :as reagent]))
+(ns status-im2.contexts.syncing.syncing-help.view
+  (:require [quo2.core :as quo]
+            [quo2.foundations.colors :as colors]
+            [react-native.core :as rn]
+            [react-native.gesture :as gesture]
+            [reagent.core :as reagent]
+            [status-im2.common.resources :as resources]
+            [status-im2.contexts.syncing.syncing-help.style :as style]
+            [utils.i18n :as i18n]
+            [utils.re-frame :as rf]))
 
-(defn render-element
+(defn- render-element
   [[type value]]
   (case type
     :text
@@ -48,7 +48,7 @@
      (resources/get-mock-image (:source value))
      (i18n/label (:label value))]))
 
-(defn render-item
+(defn- render-item
   [i list-item]
   ^{:key i}
   [rn/view
@@ -66,13 +66,14 @@
                   [render-element item])
                 list-item)])
 
-(defn render-list
+(defn- render-list
   [{:keys [title image list]}]
   [rn/view
-   [quo/text
-    {:size   :paragraph-1
-     :weight :semi-bold
-     :style  style/paragraph} (i18n/label title)]
+   (when title
+     [quo/text
+      {:size   :paragraph-1
+       :weight :semi-bold
+       :style  style/paragraph} (i18n/label title)])
    (case (:type image)
      :container-image [rn/view {:style style/container-image}
                        [rn/image
@@ -80,11 +81,12 @@
                                   (:source image))}]]
      :image           [rn/image
                        {:source (resources/get-image (:source image))
-                        :style  style/image}])
+                        :style  style/image}]
+     nil)
    [rn/view {:style style/numbered-list}
     (map-indexed (fn [i item] (render-item (inc i) item)) list)]])
 
-(def platforms
+(def how-to-pair-data
   {:mobile
    [gesture/scroll-view
     (render-list {:title :t/signing-in-from-another-device
@@ -138,20 +140,65 @@
                            [:button-grey :t/enter-sync-code]]
                           [[:text :t/scan-or-enter-sync-code-seen-on-this-device]]]})]})
 
+(def find-sync-code-data
+  {:mobile
+   [gesture/scroll-view
+    (render-list {:image {:source :find-sync-code-mobile
+                          :type   :image}
+                  :list  [[[:text :t/open-status-on-your-other-device]]
+                          [[:text :t/open-your]
+                           [:context-tag
+                            {:label  :t/profile
+                             :source :user-picture-male5}]]
+                          [[:text :t/go-to]
+                           [:button-grey-placeholder :t/syncing]]
+                          [[:text :t/tap]
+                           [:button-grey :t/sync-new-device]
+                           [:text :t/and]
+                           [:button-primary :t/set-up-sync]]
+                          [[:text :t/scan-the-qr-code-or-copy-the-sync-code]]]})]
+   :desktop
+   [gesture/scroll-view
+    (render-list {:image {:source :find-sync-code-desktop
+                          :type   :image}
+                  :list  [[[:text :t/open-status-on-your-other-device]]
+                          [[:text :t/open]
+                           [:button-grey-placeholder :t/settings]
+                           [:text :t/and-go-to]
+                           [:button-grey-placeholder :t/syncing]]
+                          [[:text :t/tap]
+                           [:button-primary :t/set-up-sync]]
+                          [[:text :t/scan-the-qr-code-or-copy-the-sync-code]]]})]})
+
+(defn- get-display-data
+  [type]
+  (case type
+    :how-to-pair
+    {:header-label-key :t/how-to-pair
+     :data             how-to-pair-data}
+
+    :find-sync-code
+    {:header-label-key :t/find-sync-code
+     :data             find-sync-code-data}
+
+    {:header-label-key :t/how-to-pair
+     :data             how-to-pair-data}))
+
 (defn instructions
   []
-  (let [platform      (reagent/atom :mobile)
-        platform-data (map (fn [platform]
-                             {:id    platform
-                              :label (i18n/label
-                                      (keyword (str "t/" (name platform))))})
-                           (keys platforms))]
+  (let [{:keys [type]}                  (rf/sub [:get-screen-params])
+        platform                        (reagent/atom :mobile)
+        platform-data                   [{:id    :mobile
+                                          :label (i18n/label :t/mobile)}
+                                         {:id    :desktop
+                                          :label (i18n/label :t/desktop)}]
+        {:keys [header-label-key data]} (get-display-data type)]
     (fn []
       [rn/view {:style style/container-outer}
        [quo/text
         {:size   :heading-1
          :weight :semi-bold
-         :style  style/heading} (i18n/label :t/how-to-pair)]
+         :style  style/heading} (i18n/label header-label-key)]
        [rn/view {:style style/tabs-container}
         [quo/segmented-control
          {:size           28
@@ -160,5 +207,5 @@
           :default-active :mobile
           :data           platform-data
           :on-change      #(reset! platform %)}]]
-       (@platform platforms)])))
+       (@platform data)])))
 
