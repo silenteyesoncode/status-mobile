@@ -3,7 +3,9 @@
             [re-frame.core :as re-frame]
             [status-im2.config :as config]
             [taoensso.timbre :as log]
-            [utils.re-frame :as rf]))
+            [utils.re-frame :as rf]
+            [native-module.core :as native-module]
+            [status-im.utils.types :as types]))
 
 (def logs-queue (atom #queue []))
 (def max-log-entries 1000)
@@ -18,15 +20,22 @@
 
 (defn setup
   [level]
-  (when-not (string/blank? level)
-    (log/set-level! (-> level
-                        string/lower-case
-                        keyword))
-    (log/merge-config!
-     {:output-fn (fn [& data]
-                   (let [res (apply log/default-output-fn data)]
-                     (add-log-entry res)
-                     res))})))
+  (let [handle-error (fn [res]
+                       (let [{:keys [error]} (types/json->clj res)]
+                         (when-not (string/blank? error)
+                           (log/error "init statusgo logging failed" error))))]
+    (if (string/blank? level)
+      (native-module/init-statusgo-logging true false "WARN" handle-error)
+      (do
+        (log/set-level! (-> level
+                            string/lower-case
+                            keyword))
+        (log/merge-config!
+         {:output-fn (fn [& data]
+                       (let [res (apply log/default-output-fn data)]
+                         (add-log-entry res)
+                         res))})
+        (native-module/init-statusgo-logging true false level handle-error)))))
 
 (re-frame/reg-fx
  :logs/set-level
