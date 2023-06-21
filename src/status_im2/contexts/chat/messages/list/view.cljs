@@ -296,7 +296,7 @@
        :on-scroll-to-index-failed    identity
        :content-container-style      {:padding-bottom style/messages-list-bottom-offset}
        :scroll-indicator-insets      {:top (- composer.constants/composer-default-height 16)}
-       :keyboard-dismiss-mode        :interactive
+       :keyboard-dismiss-mode        :on-drag
        :keyboard-should-persist-taps :handled
        :on-momentum-scroll-begin     state/start-scrolling
        :on-momentum-scroll-end       state/stop-scrolling
